@@ -129,6 +129,7 @@ User → Accounts → Transactions → Categories
 | Budgets | Phase 2 |
 | Recurring transactions | Phase 2 (needs a scheduled job) |
 | Savings goals | Backlog |
+| Multi-user: public sign-up + password reset + email verification | Future — locked in MVP, see [[0003-single-user-signup-lock]] |
 | LLM / agent integration | Future (see below) |
 
 ---

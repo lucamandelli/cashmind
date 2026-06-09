@@ -17,6 +17,10 @@ export const auth = betterAuth({
       enabled: false,
     },
   },
+  emailAndPassword: { enabled: true, disableSignUp: true },
+  account: { modelName: "authAccount" },
+  basePath: "/auth",
+  trustedOrigins: [env.WEB_ORIGIN],
 });
 
 export type Session = typeof auth.$Infer.Session;

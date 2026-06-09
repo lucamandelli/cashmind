@@ -16,5 +16,6 @@ over time.
 
 - [[0001-transfer-single-row]] — transfers modeled as a single row
 - [[0002-auth-account-rename]] — Better Auth's `Account` renamed to `AuthAccount`
+- [[0003-single-user-signup-lock]] — public sign-up locked in the MVP (single-user)
 
 Parent: [[00-overview]]

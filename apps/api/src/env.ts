@@ -9,6 +9,9 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
+  SEED_USER_EMAIL: z.string().email().optional(),
+  SEED_USER_PASSWORD: z.string().min(8).optional(),
+  SEED_USER_NAME: z.string().default("Owner"),
 });
 
 const env = envSchema.parse(process.env);

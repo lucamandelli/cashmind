@@ -6,6 +6,7 @@ import rateLimit from "@fastify/rate-limit";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
 import health from "./routes/health.js";
+import accounts from "./routes/accounts.js";
 
 const app = Fastify({ logger: true });
 
@@ -20,15 +21,16 @@ await app.register(rateLimit, {
   timeWindow: "1 minute",
 });
 
-// Better Auth handler — mounted at /api/auth/*
+// Better Auth handler — mounted at /auth/* (Vite proxy strips /api prefix)
 const authHandler = toNodeHandler(auth);
-app.all("/api/auth/*", async (request, reply) => {
+app.all("/auth/*", async (request, reply) => {
   await authHandler(request.raw, reply.raw);
   reply.hijack();
 });
 
 // Routes
 await app.register(health, { prefix: "/" });
+await app.register(accounts, { prefix: "/" });
 
 // Start
 await app.listen({ port: env.PORT, host: "0.0.0.0" });
