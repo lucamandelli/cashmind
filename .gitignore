@@ -1,0 +1,16 @@
+# Obsidian — volatile UI state
+docs/.obsidian/workspace.json
+docs/.obsidian/workspace-mobile.json
+
+# Node / env
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+
+# OS
+.DS_Store
