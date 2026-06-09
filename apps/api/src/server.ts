@@ -3,7 +3,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
-import { toNodeHandler } from "better-auth/node";
+import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "./auth.js";
 import health from "./routes/health.js";
 import accounts from "./routes/accounts.js";
@@ -22,10 +22,23 @@ await app.register(rateLimit, {
 });
 
 // Better Auth handler — mounted at /auth/* (Vite proxy strips /api prefix)
-const authHandler = toNodeHandler(auth);
-app.all("/auth/*", async (request, reply) => {
-  await authHandler(request.raw, reply.raw);
-  reply.hijack();
+// Uses auth.handler (Fetch API) because Fastify consumes the body stream before
+// toNodeHandler can read it; request.body is already parsed and safe to use.
+app.route({
+  method: ["GET", "POST"],
+  url: "/auth/*",
+  async handler(request, reply) {
+    const url = new URL(request.url, `http://${request.headers.host}`);
+    const req = new Request(url.toString(), {
+      method: request.method,
+      headers: fromNodeHeaders(request.headers),
+      ...(request.body ? { body: JSON.stringify(request.body) } : {}),
+    });
+    const response = await auth.handler(req);
+    reply.status(response.status);
+    response.headers.forEach((value, key) => reply.header(key, value));
+    return reply.send(response.body ? await response.text() : null);
+  },
 });
 
 // Routes

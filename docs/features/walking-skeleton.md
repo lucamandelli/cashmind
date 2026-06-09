@@ -74,5 +74,9 @@ Domain [[accounts]]. Decided in [[0002-auth-account-rename]] and
   so even `auth.api.signUpEmail` (server-side) is rejected. The seed creates
   the owner via direct DB insert with Better Auth's own password hasher, so
   the hashed password verifies correctly on sign-in.
+- **Fastify consumes the body stream** before `toNodeHandler` can read it,
+  causing a `400 VALIDATION_ERROR` on sign-in. Fix: use `auth.handler` (Fetch
+  API) and build a `Request` from `request.body` (already parsed by Fastify).
+  See [[0003-fastify-auth-body-stream]].
 
 Parent: [[features-index]]

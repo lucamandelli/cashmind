@@ -14,8 +14,8 @@ in `packages/shared` rather than being copied here.
 
 ## Resources
 
+- [[accounts]] — financial accounts (create + list, user-scoped)
 - [[transactions]] — income / expense / transfer
-- _accounts — TODO_
 - _categories — TODO_
 
 Parent: [[00-overview]]
