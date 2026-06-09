@@ -8,6 +8,9 @@ Full architecture and rationale: see `docs/ARCHITECTURE.md`.
 
 ## Invariants (apply to ALL code — never violate)
 
+- **Language is English.** All code (identifiers, comments, strings) and all
+  `docs/` notes must be written in English. Conversations with the user may be
+  in any language, but anything committed to the repo is English.
 - **Money is integer cents** (`amountMinor: number`). Never use floats for money.
 - **Every data row is scoped by `user_id`.** Queries always filter by the
   authenticated user. The user is never chosen by input or by an LLM.

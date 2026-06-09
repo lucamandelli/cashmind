@@ -31,6 +31,12 @@ How we build. These are stable, continuous rules (distinct from one-off ADRs in
 - **Node 22 LTS**, pinned via `.nvmrc`.
 - Env validated with a **Zod** schema at boot; `.env` gitignored, `.env.example` committed.
 
+## Language
+
+**English only** in everything committed to the repo: identifiers, comments,
+string literals, and all `docs/` notes. Conversations with users may be in any
+language; the repo is English.
+
 ## Code style
 
 - Shared types/schemas live in `packages/shared` (Zod) — infer, don't redefine.

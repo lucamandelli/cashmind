@@ -1,0 +1,27 @@
+{
+  "name": "cashmind",
+  "private": true,
+  "version": "0.0.1",
+  "packageManager": "npm@10.9.8",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm run dev -w @cashmind/api\" \"npm run dev -w @cashmind/web\"",
+    "build": "npm run build -w @cashmind/shared && npm run build -w @cashmind/api && npm run build -w @cashmind/web",
+    "typecheck": "tsc -b packages/shared && npm run typecheck -w @cashmind/api && npm run typecheck -w @cashmind/web",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "test": "npm run test -w @cashmind/shared && npm run test -w @cashmind/api"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "concurrently": "^9.1.2",
+    "typescript": "^5.7.3"
+  }
+}

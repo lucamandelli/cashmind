@@ -13,6 +13,7 @@ shipping or debugging production.
 
 ## Runbooks
 
+- [[monorepo-scaffold]] — monorepo structure, hello path, and scaffold gotchas
 - [[deployment]] — VPS + Docker Compose + Nginx/Certbot + backup
 - _backup-restore — TODO_
 
