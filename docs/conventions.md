@@ -30,6 +30,7 @@ How we build. These are stable, continuous rules (distinct from one-off ADRs in
 - **TypeScript `strict: true`** from day one.
 - **Node 22 LTS**, pinned via `.nvmrc`.
 - Env validated with a **Zod** schema at boot; `.env` gitignored, `.env.example` committed.
+- **`apps/web` uses `noEmit: true`** — Vite owns compilation; `tsc -b` is type-check only. Without this, `tsc` emits `.js` / `.js.map` files alongside sources and breaks TanStack Router's route generator (conflicting `.tsx` + `.js` for the same route).
 
 ## Language
 
