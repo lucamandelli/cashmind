@@ -29,9 +29,8 @@ Request/response shapes: `CreateAccountSchema` and `AccountSchema` in
 - **`userId` comes from the session only** — never from the request body or query
   string. This is the project's #1 data-isolation invariant.
 - Both endpoints return `401` if there is no valid session cookie.
-- `POST` validates the body against `CreateAccountSchema`; name is trimmed,
-  1–100 chars.
-- `GET` orders by `createdAt desc`.
+- `POST` validates the body against `CreateAccountSchema` (source of truth for
+  field rules: `packages/shared/src/account.ts`).
 
 ## Decisions
 
