@@ -27,13 +27,10 @@ once in `docs/README.md`. **Read it** rather than duplicating it here.
    - ADRs and log entries are numbered (`NNNN-slug.md`).
 3. **Apply the template** for that type (headings, in order — see `docs/README.md`).
 4. **Write WHY and WHERE, not WHAT.** Never copy field lists, validation rules,
-   DB columns, test assertions, or **code snippets** into docs — point to the
-   source instead. A copied fact is a future lie.
-   - Schema/validation rules → `packages/shared/src/<schema>.ts`
-   - DB model columns → Prisma schema
-   - Implementation (the fix, the route, the hook) → name the file path in
-     prose: *"see `apps/api/src/server.ts`"*. The file is the WHAT; the doc
-     holds the WHY and WHERE to look.
+   DB columns, test assertions, or code snippets — point to Zod
+   (`packages/shared`), Prisma, the test files, or the implementation file
+   instead (e.g. *"see `apps/api/src/server.ts`"*). The path you name is the
+   WHERE; the code there is the WHAT. A copied fact is a future lie.
 5. **Link** with `[[note-name]]`, labeled in prose, in the consistent direction:
    feature → api/domain; any note → its ADR; log → the affected feature/api.
 6. **Frontmatter**: set/keep `type`, `status`, `summary`, `tags`, and bump
