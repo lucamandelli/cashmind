@@ -1,0 +1,57 @@
+# CashMind — Claude Code Guide
+
+CashMind is a personal finance app to track spending and income. Single-user
+first, with a multi-user-ready schema. Web app, mobile-first (responsive PWA).
+TypeScript end-to-end.
+
+Full architecture and rationale: see `docs/ARCHITECTURE.md`.
+
+## Invariants (apply to ALL code — never violate)
+
+- **Money is integer cents** (`amountMinor: number`). Never use floats for money.
+- **Every data row is scoped by `user_id`.** Queries always filter by the
+  authenticated user. The user is never chosen by input or by an LLM.
+- **Zod schemas in `packages/shared` are the source of truth** for data shapes,
+  validation, and types. Don't redefine types — infer them from Zod.
+- **Transaction date is a `DATE`** (no time, no timezone).
+  `created_at` / `updated_at` are `timestamptz` in UTC.
+- **Archive, never delete** domain records (categories, accounts): set `archived_at`.
+- Base currency is **BRL**, mono-currency. The `currency` field exists on records
+  so multi-currency can be added later without a migration.
+
+## Repo map
+
+- `apps/web` — React + Vite SPA (frontend)
+- `apps/api` — Fastify (backend)
+- `packages/shared` — Zod schemas + inferred types (imported by both apps)
+
+## Living documentation (`docs/`)
+
+`docs/` is the project's second brain. It is optimized to be read by you (Claude)
+and doubles as an Obsidian vault for the human to navigate as a graph.
+
+**How the system works (types, links, templates): `docs/README.md`.**
+**Map of everything (graph hub): `docs/00-overview.md`.**
+
+### Two rules — non-negotiable
+
+1. **Before** changing an area, READ its note under `docs/`.
+2. **After** changing that area's behavior, UPDATE its note in the **same commit**
+   (use the `/document` skill). Documentation and code travel together.
+
+### Scope rule
+
+Document the **WHY** and the **WHERE**. Let the code be the **WHAT**.
+Never hand-copy contracts that already live in Zod / Prisma / tests — point to
+them instead. A copied fact is a future lie.
+
+### Index
+
+- Overview / graph hub → `docs/00-overview.md`
+- Domain (entities, balance rules) → `docs/domain/`
+- API (REST resources) → `docs/api/`
+- Features (end-to-end product flows) → `docs/features/`
+- Decisions (ADRs — the "why") → `docs/decisions/`
+- Ops (infra, deploy, backup, runbook) → `docs/ops/`
+- Conventions (how we build, testing strategy) → `docs/conventions.md`
+- Log (known bugs & gotchas) → `docs/log/`
