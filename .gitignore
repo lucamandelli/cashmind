@@ -1,6 +1,5 @@
-# Obsidian — volatile UI state
-docs/.obsidian/workspace.json
-docs/.obsidian/workspace-mobile.json
+# Obsidian — user-specific config
+docs/.obsidian/
 
 # Node / env
 node_modules/
