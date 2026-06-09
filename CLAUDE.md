@@ -45,6 +45,18 @@ Document the **WHY** and the **WHERE**. Let the code be the **WHAT**.
 Never hand-copy contracts that already live in Zod / Prisma / tests — point to
 them instead. A copied fact is a future lie.
 
+### Definition of Done (do this automatically — don't wait to be asked)
+
+When you finish a change:
+
+1. Code respects the invariants above.
+2. **Only if** the change affects something the docs describe — behavior,
+   business rules, API surface, a decision, or structure — update the relevant
+   `docs/` note (same commit) via the `/document` skill.
+   Purely cosmetic or trivial tweaks (styling, colors, copy, refactors with no
+   behavior change) do **NOT** need docs — we document the WHY/WHERE, not the WHAT.
+3. Commit with a Conventional Commit (see [conventions](docs/conventions.md)).
+
 ### Index
 
 - Overview / graph hub → `docs/00-overview.md`
