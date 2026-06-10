@@ -25,6 +25,7 @@ function AccountsPage() {
   const [editingAccount, setEditingAccount] = useState<Account | undefined>(
     undefined,
   );
+  const [archiveError, setArchiveError] = useState<string | null>(null);
 
   // --- query ---
   const { data, isLoading, error } = useQuery<Account[]>({
@@ -54,11 +55,23 @@ function AccountsPage() {
   };
 
   const handleArchive = async (account: Account) => {
+    setArchiveError(null);
     const action = account.archivedAt ? "unarchive" : "archive";
-    await fetch(`/api/accounts/${account.id}/${action}`, {
+    const res = await fetch(`/api/accounts/${account.id}/${action}`, {
       method: "POST",
       credentials: "include",
     });
+    if (!res.ok) {
+      let message = `Failed to ${action} account`;
+      try {
+        const json = (await res.json()) as { error?: string };
+        if (json.error) message = json.error;
+      } catch {
+        // ignore parse error — keep the default message
+      }
+      setArchiveError(message);
+      return;
+    }
     await invalidate();
   };
 
@@ -96,6 +109,11 @@ function AccountsPage() {
         <p className="text-sm text-red-600">
           Error: {(error as Error).message}
         </p>
+      )}
+      {archiveError && (
+        <div className="mb-4 rounded-md bg-red-50 px-3 py-2.5 text-[12px] text-red-700 border border-red-100">
+          {archiveError}
+        </div>
       )}
 
       {/* Active accounts */}
@@ -154,9 +172,7 @@ function AccountsPage() {
               className="inline-flex items-center gap-1.5 text-[12px] text-zinc-400 hover:text-zinc-600 transition-colors"
             >
               <Archive size={13} strokeWidth={1.75} />
-              {showArchived
-                ? "Hide archived accounts"
-                : `Show archived accounts${archived.length > 0 ? ` (${archived.length})` : ""}`}
+              {showArchived ? "Hide archived accounts" : "Show archived accounts"}
             </button>
 
             {showArchived && archived.length > 0 && (

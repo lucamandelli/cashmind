@@ -12,8 +12,9 @@ export default defineConfig({
     },
   },
   test: {
-    // Pure unit tests only — no DOM tests in this project yet.
-    // Switch to "jsdom" (+ install jsdom) when component tests are added.
+    // Pure unit tests only — no DOM/component tests in this project yet.
+    // To add component/.tsx tests: run `npm install -D jsdom` (in apps/web)
+    // and change environment to "jsdom".
     environment: "node",
     include: ["src/**/*.test.tsx", "src/**/*.test.ts"],
   },
