@@ -19,7 +19,7 @@
  */
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toMinor, toMajor } from "@cashmind/shared";
@@ -107,7 +107,10 @@ export function AccountForm({
     setError,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    resolver: zodResolver(FormSchema) as Parameters<typeof useForm<FormValues>>["0"]["resolver"],
+    // zodResolver with a transform schema: cast to Resolver<FormValues> because
+    // the input type (string fields) is what RHF deals with; the schema's
+    // output type (transformed) is used only in onSubmit via FormSchema.parse().
+    resolver: zodResolver(FormSchema) as unknown as Resolver<FormValues>,
     defaultValues: {
       name: account?.name ?? "",
       amountReais: account
@@ -131,7 +134,7 @@ export function AccountForm({
     const parsed = FormSchema.parse(raw) as ParsedValues;
     const initialBalance = toMinor(parsed.amountReais);
 
-    const url = isEditing ? `/api/accounts/${account!.id}` : "/api/accounts";
+    const url = isEditing ? `/api/accounts/${account?.id}` : "/api/accounts";
     const method = isEditing ? "PATCH" : "POST";
 
     const body = isEditing
