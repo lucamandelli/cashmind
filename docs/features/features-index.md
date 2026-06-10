@@ -53,11 +53,9 @@ TanStack Query → UI), not to ship breadth.
 - Uses: [[accounts]]
 
 ### 1 · Accounts (thicken)
-
-Grow the skeleton's create/list into full management.
-
-- **Scope:** edit, archive (`archived_at`, never delete), the full account schema.
-- Uses: [[accounts]]
+Grow the skeleton's create/list into full account management (full schema, edit,
+archive/unarchive) and ship the app's first production-quality UI.
+→ [[accounts-management]] · Touches: [[accounts]] · [[accounts-api]] · status: planned
 
 ### 2 · Categories
 
