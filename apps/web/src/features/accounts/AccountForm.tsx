@@ -104,7 +104,7 @@ export function AccountForm({
     defaultValues: {
       name: account?.name ?? "",
       amountReais: account
-        ? String(toMajor(account.initialBalance))
+        ? toMajor(account.initialBalance).toLocaleString("pt-BR", { maximumFractionDigits: 2, useGrouping: false })
         : "0",
     },
   });
@@ -114,7 +114,9 @@ export function AccountForm({
   useEffect(() => {
     reset({
       name: account?.name ?? "",
-      amountReais: account ? String(toMajor(account.initialBalance)) : "0",
+      amountReais: account
+        ? toMajor(account.initialBalance).toLocaleString("pt-BR", { maximumFractionDigits: 2, useGrouping: false })
+        : "0",
     });
   }, [account, reset]);
 
