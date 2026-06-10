@@ -267,7 +267,7 @@ function AccountRow({
       </span>
 
       {/* Row actions */}
-      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
+      <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity focus-within:opacity-100">
         {!isArchived && (
           <button
             type="button"
