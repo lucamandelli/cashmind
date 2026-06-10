@@ -22,7 +22,7 @@ import { useEffect } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toMinor, toMajor } from "@cashmind/shared";
+import { toMinor, toMajor, parseReais } from "@cashmind/shared";
 import type { Account } from "@cashmind/shared";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { Button } from "@/components/ui/button";
@@ -61,20 +61,11 @@ const FormSchema = z.object({
   amountReais: z
     .string()
     .transform((v) => {
-      // Parsing strategy for reais input:
-      //   - If the string contains a comma, it's a pt-BR decimal separator
-      //     (e.g. "1.234,56" or "9,99"). Strip dots (thousands separators)
-      //     and replace the comma with a period.
-      //   - If the string has only dots, treat it as an English decimal
-      //     (e.g. "9.99" from copy-paste or edit pre-fill via toMajor()).
-      //     Leave it as-is for parseFloat.
-      const trimmed = v.trim();
-      const normalised = trimmed.includes(",")
-        ? trimmed.replace(/\./g, "").replace(",", ".")
-        : trimmed;
-      const n = Number.parseFloat(normalised);
-      if (Number.isNaN(n)) throw new Error("Enter a valid amount");
-      return n;
+      // Delegate to the shared money helper — single source of truth for
+      // parsing user-typed reais strings (pt-BR and English formats).
+      // Throws on empty, ambiguous, or non-numeric input so RHF surfaces
+      // a clean field error.
+      return parseReais(v);
     })
     .pipe(z.number().finite("Enter a valid amount")),
 });
