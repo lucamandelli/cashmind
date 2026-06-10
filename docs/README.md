@@ -62,6 +62,12 @@ Stable, kebab-case, path-predictable: `docs/api/transactions.md`,
 `docs/features/log-expense.md`, `docs/decisions/0001-transfer-single-row.md`.
 ADRs and log entries are numbered (`NNNN-slug.md`).
 
+**Basenames must be unique across folders** (wikilinks resolve by basename, not
+path). When a domain entity and an API resource share a name, the **domain note
+keeps the bare name** (`domain/accounts.md` → `[[accounts]]`) and the **API note
+takes the `-api` suffix** (`api/accounts-api.md` → `[[accounts-api]]`). The domain
+note is the canonical home of the concept; the API note is the resource surface.
+
 ## Templates per type
 
 Use the same H2 headings, in order, so information is always in a predictable

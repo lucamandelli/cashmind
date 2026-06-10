@@ -14,7 +14,7 @@ in `packages/shared` rather than being copied here.
 
 ## Resources
 
-- [[accounts]] — financial accounts (create + list, user-scoped)
+- [[accounts-api]] — financial accounts (create + list, user-scoped)
 - [[transactions]] — income / expense / transfer
 - _categories — TODO_
 
