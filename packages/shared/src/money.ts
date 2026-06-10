@@ -39,3 +39,38 @@ export function formatBRL(minor: number): string {
 export function divideMinor(minor: number, divisor: number): number {
   return roundHalfUp(minor / divisor);
 }
+
+/**
+ * Parse a user-typed BRL reais string into a JS major-unit number (e.g. 9.99).
+ * Pass the result to toMinor() to get integer cents.
+ *
+ * Accepts:
+ *   - Plain integers:            "100"       → 100
+ *   - Dot-decimal (JS/English):  "9.99"      → 9.99
+ *   - Comma-decimal (pt-BR):     "9,99"      → 9.99
+ *   - pt-BR with thousands dot:  "1.234,56"  → 1234.56
+ *   - Negatives:                 "-500"      → -500, "-1,50" → -1.5
+ *
+ * Throws on: empty/whitespace-only input, more than one comma (ambiguous),
+ * non-numeric text, NaN, or non-finite results.
+ */
+export function parseReais(raw: string): number {
+  const trimmed = raw.trim();
+  if (trimmed === "") throw new Error("Enter a valid amount");
+
+  let normalised: string;
+  if (trimmed.includes(",")) {
+    // pt-BR format: commas are decimal separators; dots are thousands separators.
+    const commaCount = (trimmed.match(/,/g) ?? []).length;
+    if (commaCount !== 1) throw new Error("Enter a valid amount");
+    // Remove all dots (thousands separators), replace comma with period.
+    normalised = trimmed.replace(/\./g, "").replace(",", ".");
+  } else {
+    // English/JS decimal or plain integer — pass through directly.
+    normalised = trimmed;
+  }
+
+  const n = Number.parseFloat(normalised);
+  if (Number.isNaN(n) || !Number.isFinite(n)) throw new Error("Enter a valid amount");
+  return n;
+}
