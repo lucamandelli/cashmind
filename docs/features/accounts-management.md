@@ -1,6 +1,6 @@
 ---
 type: feature
-status: planned
+status: current
 updated: 2026-06-10
 summary: Feature 1 — grow the walking skeleton's create/list into full account management (full schema, edit, archive/unarchive) and ship the app's first production-quality UI (authed shell, login glow-up, accounts CRUD).
 tags: [feature, accounts, archive, ui]
