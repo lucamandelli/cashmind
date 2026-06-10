@@ -64,10 +64,10 @@ const FormSchema = z.object({
   amountReais: z
     .string()
     .transform((v) => {
-      // In this formatted input, dots are ALWAYS thousands separators (added by
-      // NumericFormat, never typed by the user). Strip them before parseReais so
-      // "6.000" is not misread as 6 by parseFloat.
-      return parseReais(v.replace(/\./g, ""));
+      // RHF receives values.value from NumericFormat — the clean English-format
+      // numeric string (e.g. "6000", "9.99", "-6000.5") with no thousands dots.
+      // parseReais handles both English dot-decimal and pt-BR comma-decimal.
+      return parseReais(v);
     })
     .pipe(z.number().finite("Enter a valid amount")),
 });
@@ -110,12 +110,10 @@ export function AccountForm({
     resolver: zodResolver(FormSchema) as unknown as Resolver<FormValues>,
     defaultValues: {
       name: account?.name ?? "",
-      amountReais: account
-        ? toMajor(account.initialBalance).toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : "0",
+      // NumericFormat reads this English-format string and formats it as pt-BR
+      // for display (e.g. "6000" → "6.000,00"). We never pass the formatted
+      // string back as value — only values.value (clean English) goes into RHF.
+      amountReais: account ? String(toMajor(account.initialBalance)) : "0",
     },
   });
 
@@ -132,12 +130,7 @@ export function AccountForm({
     setIsBlurred(false);
     reset({
       name: account?.name ?? "",
-      amountReais: account
-        ? toMajor(account.initialBalance).toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : "0",
+      amountReais: account ? String(toMajor(account.initialBalance)) : "0",
     });
   }, [account, reset]);
 
@@ -226,9 +219,9 @@ export function AccountForm({
           customInput={Input}
           value={amountField.value}
           onValueChange={(values) => {
-            // Store the formatted display string (e.g. "6.000,00").
-            // The Zod transform strips thousands dots before calling parseReais.
-            amountField.onChange(values.formattedValue);
+            // Store the clean English-format numeric string (e.g. "6000", "9.99")
+            // — no thousands dots. NumericFormat formats value for display only.
+            amountField.onChange(values.value);
           }}
           onFocus={() => setIsBlurred(false)}
           onBlur={() => {
