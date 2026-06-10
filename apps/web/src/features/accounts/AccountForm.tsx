@@ -6,20 +6,23 @@
  * callback to invalidate the accounts query.
  *
  * Money wiring (the ONE piece of real UI logic):
- *   - The "Initial balance" input is typed in BRL major units (reais),
- *     e.g. "1.234,56" or "-500". A raw number input works for pt-BR when
- *     the user types digits with a period as thousands separator and a comma
- *     (or period) as decimal. We accept any JS-parseable number string so the
- *     field stays flexible; conversion to integer cents (toMinor) happens
- *     exclusively at submit.
- *   - When editing an existing account, the field pre-fills with toMajor()
- *     which returns a JS number (e.g. 9.99 for 999 cents).
- *   - initialBalance may be negative — no min(0) applied.
+ *   - The "Initial balance" input uses NumericFormat (react-number-format) for
+ *     live pt-BR formatting: thousands separator "." and decimal separator ",".
+ *     The stored RHF value is the formatted display string (e.g. "6.000,00").
+ *   - The Zod transform strips all dots (which are always thousands separators
+ *     in this input — the user can never type a dot) before calling parseReais,
+ *     then passes the result to toMinor for integer cents.
+ *   - On blur, fixedDecimalScale=true pads decimals to 2 places (e.g. "0,1" →
+ *     "0,10"); while typing, fixedDecimalScale=false lets the user type freely.
+ *   - When editing an existing account, the field pre-fills with toLocaleString
+ *     (pt-BR, 2 fraction digits) so the thousands dot is included.
+ *   - initialBalance may be negative — allowNegative={true} is set.
  *   - currency has no input; defaults to BRL.
  */
 
-import { useEffect } from "react";
-import { useForm, type Resolver } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useForm, useController, type Resolver } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toMinor, toMajor, parseReais } from "@cashmind/shared";
@@ -61,11 +64,10 @@ const FormSchema = z.object({
   amountReais: z
     .string()
     .transform((v) => {
-      // Delegate to the shared money helper — single source of truth for
-      // parsing user-typed reais strings (pt-BR and English formats).
-      // Throws on empty, ambiguous, or non-numeric input so RHF surfaces
-      // a clean field error.
-      return parseReais(v);
+      // In this formatted input, dots are ALWAYS thousands separators (added by
+      // NumericFormat, never typed by the user). Strip them before parseReais so
+      // "6.000" is not misread as 6 by parseFloat.
+      return parseReais(v.replace(/\./g, ""));
     })
     .pipe(z.number().finite("Enter a valid amount")),
 });
@@ -90,11 +92,16 @@ export function AccountForm({
   const isDesktop = useIsDesktop();
   const isEditing = Boolean(account);
 
+  // Controls fixedDecimalScale on NumericFormat: true on blur pads to 2 places,
+  // false while focused lets the user type freely without forcing ,00 immediately.
+  const [isBlurred, setIsBlurred] = useState(true);
+
   const {
     register,
     handleSubmit,
     reset,
     setError,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     // zodResolver with a transform schema: cast to Resolver<FormValues> because
@@ -104,18 +111,32 @@ export function AccountForm({
     defaultValues: {
       name: account?.name ?? "",
       amountReais: account
-        ? toMajor(account.initialBalance).toLocaleString("pt-BR", { maximumFractionDigits: 2, useGrouping: false })
+        ? toMajor(account.initialBalance).toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
         : "0",
     },
+  });
+
+  // Controller for the amountReais field — needed for NumericFormat (uncontrolled
+  // inputs like NumericFormat require Controller rather than register).
+  const { field: amountField } = useController({
+    name: "amountReais",
+    control,
   });
 
   // Reset form values when the target account changes (e.g. user opens edit
   // for a different account while the form is already mounted).
   useEffect(() => {
+    setIsBlurred(false);
     reset({
       name: account?.name ?? "",
       amountReais: account
-        ? toMajor(account.initialBalance).toLocaleString("pt-BR", { maximumFractionDigits: 2, useGrouping: false })
+        ? toMajor(account.initialBalance).toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
         : "0",
     });
   }, [account, reset]);
@@ -187,7 +208,7 @@ export function AccountForm({
         )}
       </div>
 
-      {/* Initial balance — typed in reais */}
+      {/* Initial balance — live pt-BR formatted input via NumericFormat */}
       <div className="space-y-1.5">
         <Label
           htmlFor="account-balance"
@@ -195,14 +216,29 @@ export function AccountForm({
         >
           Initial balance (R$)
         </Label>
-        <Input
+        <NumericFormat
           id="account-balance"
-          type="text"
+          thousandSeparator="."
+          decimalSeparator=","
+          decimalScale={2}
+          fixedDecimalScale={isBlurred}
+          allowNegative={true}
+          customInput={Input}
+          value={amountField.value}
+          onValueChange={(values) => {
+            // Store the formatted display string (e.g. "6.000,00").
+            // The Zod transform strips thousands dots before calling parseReais.
+            amountField.onChange(values.formattedValue);
+          }}
+          onFocus={() => setIsBlurred(false)}
+          onBlur={() => {
+            setIsBlurred(true);
+            amountField.onBlur();
+          }}
           inputMode="decimal"
           autoComplete="off"
           placeholder="0"
           className="h-10 border-zinc-200 bg-zinc-50 font-mono text-sm placeholder:text-zinc-400 focus-visible:ring-1 focus-visible:ring-zinc-400 focus-visible:border-zinc-400"
-          {...register("amountReais")}
         />
         <p className="text-[11px] text-zinc-400">
           Enter in reais. Negative values are allowed (e.g. credit card debt).
