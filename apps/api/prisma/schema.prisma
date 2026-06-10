@@ -66,9 +66,9 @@ model Account {
   name           String
   initialBalance Int       @default(0)
   currency       String    @default("BRL")
-  archivedAt     DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  archivedAt     DateTime? @db.Timestamptz
+  createdAt      DateTime  @default(now()) @db.Timestamptz
+  updatedAt      DateTime  @updatedAt @db.Timestamptz
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
