@@ -29,5 +29,9 @@ test-results/
 # Worktrees
 .worktrees/
 
+# Development plans — transient scratch written by /plan-build, never part of the
+# second brain (docs/) or git history. Persist locally across build sessions.
+plans/
+
 # OS
 .DS_Store
