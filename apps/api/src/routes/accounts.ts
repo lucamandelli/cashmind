@@ -87,13 +87,17 @@ const accounts: FastifyPluginAsync = async (app) => {
     const { id } = request.params as { id: string };
     const data = UpdateAccountSchema.parse(request.body);
 
-    // UpdateAccountSchema already excludes archivedAt; no extra guard needed —
-    // but we enforce isolation by scoping the update to the session userId.
-    const existing = await db.account.findFirst({ where: { id, userId } });
-    if (!existing) return reply.status(404).send({ error: "not found" });
+    // UpdateAccountSchema already excludes archivedAt. Mutation is scoped
+    // atomically by both id AND userId — no separate findFirst needed.
+    const { count } = await db.account.updateMany({
+      where: { id, userId },
+      data,
+    });
+    if (count === 0) return reply.status(404).send({ error: "not found" });
 
-    const updated = await db.account.update({ where: { id }, data });
-    return reply.send(serialize(updated));
+    // Re-read the updated row to return the full serialised shape.
+    const updated = await db.account.findFirst({ where: { id, userId } });
+    return reply.send(serialize(updated!));
   });
 
   // POST /accounts/:id/archive — set archivedAt; idempotent
@@ -101,14 +105,18 @@ const accounts: FastifyPluginAsync = async (app) => {
     const userId = (request as FastifyRequest & { userId: string }).userId;
     const { id } = request.params as { id: string };
 
+    // Read first so we can preserve idempotency: do not overwrite an existing
+    // archivedAt timestamp on re-archive. The read is scoped by userId.
     const existing = await db.account.findFirst({ where: { id, userId } });
     if (!existing) return reply.status(404).send({ error: "not found" });
 
-    const archived = await db.account.update({
-      where: { id },
+    // Mutation is also scoped atomically by both id AND userId.
+    await db.account.updateMany({
+      where: { id, userId },
       data: { archivedAt: existing.archivedAt ?? new Date() },
     });
-    return reply.send(serialize(archived));
+    const archived = await db.account.findFirst({ where: { id, userId } });
+    return reply.send(serialize(archived!));
   });
 
   // POST /accounts/:id/unarchive — clear archivedAt; idempotent
@@ -116,14 +124,15 @@ const accounts: FastifyPluginAsync = async (app) => {
     const userId = (request as FastifyRequest & { userId: string }).userId;
     const { id } = request.params as { id: string };
 
-    const existing = await db.account.findFirst({ where: { id, userId } });
-    if (!existing) return reply.status(404).send({ error: "not found" });
-
-    const unarchived = await db.account.update({
-      where: { id },
+    // Mutation scoped atomically by both id AND userId.
+    const { count } = await db.account.updateMany({
+      where: { id, userId },
       data: { archivedAt: null },
     });
-    return reply.send(serialize(unarchived));
+    if (count === 0) return reply.status(404).send({ error: "not found" });
+
+    const unarchived = await db.account.findFirst({ where: { id, userId } });
+    return reply.send(serialize(unarchived!));
   });
 };
 
