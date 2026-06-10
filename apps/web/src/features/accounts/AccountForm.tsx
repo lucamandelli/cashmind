@@ -71,7 +71,6 @@ const FormSchema = z.object({
 });
 
 type FormValues = z.input<typeof FormSchema>; // raw string values the input sees
-type ParsedValues = z.output<typeof FormSchema>; // after transform
 
 export interface AccountFormProps {
   open: boolean;
@@ -120,17 +119,18 @@ export function AccountForm({
   }, [account, reset]);
 
   const onSubmit = async (raw: FormValues) => {
-    // Run the transform manually to get the parsed number; zodResolver already
-    // validated it, so this will always succeed here.
-    const parsed = FormSchema.parse(raw) as ParsedValues;
-    const initialBalance = toMinor(parsed.amountReais);
+    // zodResolver already ran the Zod transform before calling this callback,
+    // so amountReais is already a number at runtime (not the original string).
+    // Re-parsing through FormSchema would reject the number via z.string() — so
+    // we cast and use the value directly.
+    const initialBalance = toMinor(raw.amountReais as unknown as number);
 
     const url = isEditing ? `/api/accounts/${account?.id}` : "/api/accounts";
     const method = isEditing ? "PATCH" : "POST";
 
     const body = isEditing
-      ? JSON.stringify({ name: parsed.name, initialBalance })
-      : JSON.stringify({ name: parsed.name, initialBalance, currency: "BRL" });
+      ? JSON.stringify({ name: raw.name, initialBalance })
+      : JSON.stringify({ name: raw.name, initialBalance, currency: "BRL" });
 
     const res = await fetch(url, {
       method,
