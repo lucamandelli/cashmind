@@ -40,6 +40,8 @@ rules and validation live there, not here).
 - **Archive is a state transition, not a field edit.** `PATCH` never writes
   `archivedAt`. The dedicated `/archive` and `/unarchive` endpoints own that
   field — this keeps intent explicit and the guard trivially enforceable.
+- **`PATCH` requires at least one field.** An empty body `{}` returns `400`
+  (enforced by a `.refine()` on `UpdateAccountSchema`).
 - `GET /accounts` returns active accounts (`archivedAt IS NULL`) by default;
   pass `?includeArchived=true` to include archived rows.
 - `initialBalance` may be negative (credit-card / debt starting balance is

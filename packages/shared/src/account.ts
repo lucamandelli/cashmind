@@ -14,7 +14,10 @@ export const UpdateAccountSchema = z
     initialBalance: z.number().int(),
     currency: z.string(),
   })
-  .partial();
+  .partial()
+  .refine((obj) => Object.keys(obj).length > 0, {
+    message: "at least one field required",
+  });
 export type UpdateAccount = z.infer<typeof UpdateAccountSchema>;
 
 export const AccountSchema = z.object({

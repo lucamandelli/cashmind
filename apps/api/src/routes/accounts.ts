@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { fromNodeHeaders } from "better-auth/node";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import {
   CreateAccountSchema,
   UpdateAccountSchema,
@@ -85,7 +85,16 @@ const accounts: FastifyPluginAsync = async (app) => {
   app.patch("/accounts/:id", async (request, reply) => {
     const userId = (request as FastifyRequest & { userId: string }).userId;
     const { id } = request.params as { id: string };
-    const data = UpdateAccountSchema.parse(request.body);
+
+    let data: ReturnType<typeof UpdateAccountSchema.parse>;
+    try {
+      data = UpdateAccountSchema.parse(request.body);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        return reply.status(400).send({ error: err.errors[0]?.message ?? "validation error" });
+      }
+      throw err;
+    }
 
     // UpdateAccountSchema already excludes archivedAt. Mutation is scoped
     // atomically by both id AND userId — no separate findFirst needed.

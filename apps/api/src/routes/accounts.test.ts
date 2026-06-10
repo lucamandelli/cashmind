@@ -344,6 +344,40 @@ describe("PATCH /accounts/:id", () => {
     expect(res.json().name).toBe("Hacked");
   });
 
+  it("returns 400 and leaves the row unchanged when body is empty", async () => {
+    const ctx = await testAuth.$context;
+    const user = ctx.test.createUser();
+    await ctx.test.saveUser(user);
+    const cookie = await getCookieHeader(user.id);
+
+    const created = await app.inject({
+      method: "POST",
+      url: "/accounts",
+      headers: { cookie },
+      payload: { name: "Unchanged", initialBalance: 1000 },
+    });
+    const { id, name, initialBalance } = created.json();
+
+    const res = await app.inject({
+      method: "PATCH",
+      url: `/accounts/${id}`,
+      headers: { cookie },
+      payload: {},
+    });
+
+    expect(res.statusCode).toBe(400);
+
+    // Row must be untouched
+    const listRes = await app.inject({
+      method: "GET",
+      url: "/accounts",
+      headers: { cookie },
+    });
+    const row = listRes.json().find((a: { id: string }) => a.id === id);
+    expect(row.name).toBe(name);
+    expect(row.initialBalance).toBe(initialBalance);
+  });
+
   it("returns 404 for another user's account (isolation)", async () => {
     const ctx = await testAuth.$context;
     const owner = ctx.test.createUser();
