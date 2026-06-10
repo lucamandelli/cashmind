@@ -61,8 +61,17 @@ const FormSchema = z.object({
   amountReais: z
     .string()
     .transform((v) => {
-      // Accept comma or period as decimal separator; strip thousands separators.
-      const normalised = v.trim().replace(/\./g, "").replace(",", ".");
+      // Parsing strategy for reais input:
+      //   - If the string contains a comma, it's a pt-BR decimal separator
+      //     (e.g. "1.234,56" or "9,99"). Strip dots (thousands separators)
+      //     and replace the comma with a period.
+      //   - If the string has only dots, treat it as an English decimal
+      //     (e.g. "9.99" from copy-paste or edit pre-fill via toMajor()).
+      //     Leave it as-is for parseFloat.
+      const trimmed = v.trim();
+      const normalised = trimmed.includes(",")
+        ? trimmed.replace(/\./g, "").replace(",", ".")
+        : trimmed;
       const n = Number.parseFloat(normalised);
       if (Number.isNaN(n)) throw new Error("Enter a valid amount");
       return n;
