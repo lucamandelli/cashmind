@@ -209,6 +209,43 @@ describe("GET /accounts", () => {
     expect(list[0].name).toBe("Active");
   });
 
+  it("cannot see another user's accounts (isolation)", async () => {
+    const ctx = await testAuth.$context;
+    const userA = ctx.test.createUser();
+    const userB = ctx.test.createUser();
+    await ctx.test.saveUser(userA);
+    await ctx.test.saveUser(userB);
+    const cookieA = await getCookieHeader(userA.id);
+    const cookieB = await getCookieHeader(userB.id);
+
+    // Each user creates one account
+    await app.inject({
+      method: "POST",
+      url: "/accounts",
+      headers: { cookie: cookieA },
+      payload: { name: "User A Account" },
+    });
+    await app.inject({
+      method: "POST",
+      url: "/accounts",
+      headers: { cookie: cookieB },
+      payload: { name: "User B Account" },
+    });
+
+    // User A should only see their own account
+    const res = await app.inject({
+      method: "GET",
+      url: "/accounts",
+      headers: { cookie: cookieA },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const list = res.json();
+    expect(list).toHaveLength(1);
+    expect(list[0].name).toBe("User A Account");
+    expect(list[0].userId).toBe(userA.id);
+  });
+
   it("includes archived accounts when ?includeArchived=true", async () => {
     const ctx = await testAuth.$context;
     const user = ctx.test.createUser();
