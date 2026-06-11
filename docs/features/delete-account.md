@@ -1,7 +1,7 @@
 ---
 type: feature
-status: planned
-updated: 2026-06-10
+status: current
+updated: 2026-06-11
 summary: Feature 1b — permanently delete an archived account, gated by a transfer-entanglement guard and a destructive-confirm modal; the deliberate escape hatch out of archive.
 tags: [feature, accounts, delete]
 ---
@@ -19,9 +19,11 @@ account's balance**. Decided in [[0004-conditional-account-delete]].
 
 1. On the accounts screen, the user toggles to reveal archived accounts (the
    archived view from [[accounts-management]]).
-2. An archived account that **qualifies** (no transfers to a surviving account)
-   shows a **Delete** action. An entangled one shows no Delete — just a one-line
-   "has transfers — can only stay archived."
+2. **Today (pre-Feature-3):** every archived account shows a **Delete** action —
+   no transactions exist yet, so the transfer-entanglement guard is vacuous and
+   every archived account qualifies (see Gotchas). **From Feature 3 on:** only an
+   account with no transfers to a surviving account will show Delete; an entangled
+   one will not (it can only stay archived).
 3. Clicking Delete opens a **destructive confirm modal**: it warns that the
    deletion is permanent, removes the account and its transaction history, and
    cannot be undone.
@@ -49,12 +51,15 @@ account's balance**. Decided in [[0004-conditional-account-delete]].
   2. **Delete UI** — the conditional Delete affordance on archived rows + the
      destructive confirm modal. Depends on sub-unit 1.
 
-Targets created/changed (planned):
+Targets created/changed:
 
-- `apps/api/src/routes/accounts.ts` — add `DELETE /accounts/:id` with the
+- `apps/api/src/routes/accounts.ts` — `DELETE /accounts/:id` with the
   archive-first guard (and, from Feature 3 on, the transfer-entanglement guard).
-- `apps/web/src/features/accounts/` — Delete affordance on qualifying archived
-  rows + a destructive confirm modal (an `AlertDialog`).
+- `apps/web/src/routes/_authenticated/accounts.tsx` — Delete affordance on
+  archived rows (Trash2 icon, hover-destructive styling) + AlertDialog confirm
+  modal wired to `DELETE /accounts/:id`.
+- `apps/web/src/components/ui/alert-dialog.tsx` — shadcn AlertDialog primitive
+  (added by this feature).
 - *(Feature 3, not here)* the `Transaction` model's account FK gains
   `onDelete: Cascade`, and this route gains the transfer-entanglement check.
 
