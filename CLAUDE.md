@@ -21,6 +21,8 @@ Full architecture and rationale: see `docs/ARCHITECTURE.md`.
   tables follow the library's own schema (they keep `TIMESTAMP(3)`) — don't migrate
   them to match our convention; see `docs/log/0004-better-auth-tables-timestamp3.md`.
 - **Archive, never delete** domain records (categories, accounts): set `archived_at`.
+  Exception: a non-entangled archived account may be hard-deleted via
+  `DELETE /accounts/:id` — see `docs/decisions/0004-conditional-account-delete.md`.
 - Base currency is **BRL**, mono-currency. The `currency` field exists on records
   so multi-currency can be added later without a migration.
 

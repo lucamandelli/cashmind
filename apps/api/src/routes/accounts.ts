@@ -143,6 +143,33 @@ const accounts: FastifyPluginAsync = async (app) => {
     const unarchived = await db.account.findFirst({ where: { id, userId } });
     return reply.send(serialize(unarchived!));
   });
+
+  // DELETE /accounts/:id — permanently hard-delete an archived account.
+  // Guard ladder (read-first, so 404 and 409 are distinguishable):
+  //   1. Row not found or belongs to another user  →  404
+  //   2. Account is active (archivedAt is null)     →  409  (must archive first)
+  //   3. Account is archived                        →  204  (deleted, no body)
+  //
+  // NOTE: When transactions exist (Feature 3), this route must also reject
+  // deletion of an account that has transfers to a surviving account, and the
+  // Transaction→account FK gets onDelete: Cascade. See ADR 0004
+  // (docs/decisions/0004-conditional-account-delete.md). Vacuous until then.
+  app.delete("/accounts/:id", async (request, reply) => {
+    const userId = (request as FastifyRequest & { userId: string }).userId;
+    const { id } = request.params as { id: string };
+
+    // Read first so 404 (not yours / missing) and 409 (active) are separate codes.
+    const existing = await db.account.findFirst({ where: { id, userId } });
+    if (!existing) return reply.status(404).send({ error: "not found" });
+
+    if (existing.archivedAt === null) {
+      return reply.status(409).send({ error: "account is not archived" });
+    }
+
+    // Scoped by both id AND userId for defence-in-depth.
+    await db.account.deleteMany({ where: { id, userId } });
+    return reply.status(204).send();
+  });
 };
 
 export default accounts;
