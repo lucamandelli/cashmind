@@ -5,7 +5,18 @@ import type { Account } from "@cashmind/shared";
 import { formatBRL } from "@cashmind/shared";
 import { AccountForm } from "@/features/accounts/AccountForm";
 import { Button } from "@/components/ui/button";
-import { Archive, ArchiveRestore, Pencil, Plus } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Archive, ArchiveRestore, Pencil, Plus, Trash2 } from "lucide-react";
 
 /**
  * Accounts page — child of the _authenticated pathless layout.
@@ -26,6 +37,7 @@ function AccountsPage() {
     undefined,
   );
   const [archiveError, setArchiveError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // --- query ---
   const { data, isLoading, error } = useQuery<Account[]>({
@@ -75,6 +87,26 @@ function AccountsPage() {
     await invalidate();
   };
 
+  const handleDelete = async (account: Account) => {
+    setDeleteError(null);
+    const res = await fetch(`/api/accounts/${account.id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      let message = "Failed to delete account";
+      try {
+        const json = (await res.json()) as { error?: string };
+        if (json.error) message = json.error;
+      } catch {
+        // ignore parse error — keep the default message
+      }
+      setDeleteError(message);
+      return;
+    }
+    await invalidate();
+  };
+
   // Separate active from archived for display
   const active = data?.filter((a) => !a.archivedAt) ?? [];
   const archived = data?.filter((a) => a.archivedAt) ?? [];
@@ -113,6 +145,11 @@ function AccountsPage() {
       {archiveError && (
         <div className="mb-4 rounded-md bg-red-50 px-3 py-2.5 text-[12px] text-red-700 border border-red-100">
           {archiveError}
+        </div>
+      )}
+      {deleteError && (
+        <div className="mb-4 rounded-md bg-red-50 px-3 py-2.5 text-[12px] text-red-700 border border-red-100">
+          {deleteError}
         </div>
       )}
 
@@ -193,6 +230,7 @@ function AccountsPage() {
                       account={account}
                       onEdit={() => handleEdit(account)}
                       onArchiveToggle={() => handleArchive(account)}
+                      onDelete={() => handleDelete(account)}
                       isArchived
                     />
                   ))}
@@ -228,6 +266,7 @@ interface AccountRowProps {
   account: Account;
   onEdit: () => void;
   onArchiveToggle: () => void;
+  onDelete?: () => void;
   isArchived?: boolean;
 }
 
@@ -235,6 +274,7 @@ function AccountRow({
   account,
   onEdit,
   onArchiveToggle,
+  onDelete,
   isArchived = false,
 }: AccountRowProps) {
   const balanceIsNegative = account.initialBalance < 0;
@@ -296,6 +336,42 @@ function AccountRow({
             <Archive size={13} strokeWidth={1.75} />
           )}
         </button>
+        {isArchived && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                type="button"
+                className="rounded p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                aria-label={`Delete ${account.name}`}
+                title="Delete permanently"
+              >
+                <Trash2 size={13} strokeWidth={1.75} />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="bg-white border-zinc-200">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-zinc-900">
+                  Delete this account?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-zinc-500">
+                  This permanently deletes the account and its transaction
+                  history. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50 w-full sm:w-auto">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-red-600 text-white hover:bg-red-700 w-full sm:w-auto"
+                  onClick={onDelete}
+                >
+                  Delete permanently
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
     </li>
   );

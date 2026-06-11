@@ -1,8 +1,8 @@
 ---
 type: api
 status: current
-updated: 2026-06-10
-summary: Financial accounts resource — user-scoped CRUD with archive/unarchive state transitions.
+updated: 2026-06-11
+summary: Financial accounts resource — user-scoped CRUD with archive/unarchive state transitions and conditional hard-delete.
 tags: [api, accounts]
 ---
 
@@ -12,8 +12,9 @@ tags: [api, accounts]
 
 Financial accounts scoped to the authenticated user. Feature 1 ships the full
 resource: create, list (with archived filter), edit, and archive/unarchive as
-explicit state transitions. Every `:id` operation is scoped to the session user —
-a row belonging to another user returns `404`, never leaks.
+explicit state transitions. Feature 1b adds a conditional hard-delete for archived
+accounts. Every `:id` operation is scoped to the session user — a row belonging to
+another user returns `404`, never leaks.
 
 ## Endpoints
 
@@ -25,6 +26,7 @@ a row belonging to another user returns `404`, never leaks.
 | `PATCH` | `/accounts/:id` | Edit user-editable fields (name, initialBalance, currency) |
 | `POST` | `/accounts/:id/archive` | Archive the account (sets `archivedAt`); idempotent |
 | `POST` | `/accounts/:id/unarchive` | Restore an archived account (clears `archivedAt`); idempotent |
+| `DELETE` | `/accounts/:id` | Permanently hard-delete an archived account; `204` on success |
 
 Request/response shapes: `CreateAccountSchema`, `UpdateAccountSchema`, and
 `AccountSchema` in `packages/shared/src/account.ts` (source of truth — field
@@ -46,11 +48,19 @@ rules and validation live there, not here).
   pass `?includeArchived=true` to include archived rows.
 - `initialBalance` may be negative (credit-card / debt starting balance is
   legitimate — see [[accounts]] for the balance formula).
+- **`DELETE /accounts/:id` guard ladder** (read-first, so each code is
+  distinguishable): row not found or belongs to another user → `404`; account is
+  active (`archivedAt IS NULL`) → `409` ("account is not archived"); account is
+  archived and non-entangled → `204` (row hard-deleted, no body). The
+  transfer-entanglement guard (a second distinct `409`) is **deferred to Feature 3**
+  — until the `Transaction` model exists every archived account qualifies for
+  deletion. Full rationale in [[0004-conditional-account-delete]].
 
 ## Decisions
 
 Naming decided in [[0002-auth-account-rename]]. Archive-as-transition rationale
 in [[accounts-management]] (Rules section). Walking skeleton origin in
-[[walking-skeleton]].
+[[walking-skeleton]]. Conditional hard-delete design and guard ladder rationale in
+[[0004-conditional-account-delete]].
 
 Parent: [[api-index]]

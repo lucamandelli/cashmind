@@ -1,7 +1,7 @@
 ---
 type: domain
 status: current
-updated: 2026-06-09
+updated: 2026-06-11
 summary: Accounts/wallets and how the balance is computed (on read, with the transfer branch).
 tags: [domain, accounts, balance]
 ---
@@ -29,7 +29,10 @@ only how much came in/out.
   ```
 
 - All amounts are **integer cents** (`amountMinor`).
-- Accounts are **archived, never deleted** (`archived_at`).
+- Accounts are **archived by default, never deleted** (`archived_at`). Exception:
+  an archived account with no transfers to a surviving account may be permanently
+  hard-deleted — the deliberate narrow escape hatch decided in
+  [[0004-conditional-account-delete]].
 
 ## Relations
 

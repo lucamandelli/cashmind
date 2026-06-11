@@ -1,7 +1,7 @@
 ---
 type: overview
 status: current
-updated: 2026-06-09
+updated: 2026-06-10
 summary: MVP roadmap — the ordered, dependency-sorted feature backlog to ship CashMind. Each item becomes its own feature note when work on it starts.
 tags: [features, moc, roadmap]
 ---
@@ -57,6 +57,11 @@ Grow the skeleton's create/list into full account management (full schema, edit,
 archive/unarchive) and ship the app's first production-quality UI.
 → [[accounts-management]] · Touches: [[accounts]] · [[accounts-api]] · status: planned
 
+### 1b · Delete account
+Permanently delete an archived account, gated by a transfer-entanglement guard and
+a destructive-confirm modal — the deliberate escape hatch out of archive.
+→ [[delete-account]] · Touches: [[accounts]] · [[accounts-api]] · [[accounts-management]] · [[0004-conditional-account-delete]] · status: planned
+
 ### 2 · Categories
 
 - **Scope:** pt-BR **seed** per user + CRUD; `kind` field (`income` | `expense`);
@@ -76,6 +81,10 @@ and one route — a union wants to be written whole. Includes all three types.
 - **Build order inside the item:** schema+route+coherence → expense form (prove
   the slice) → income & transfer as variations → list/history → edit/delete.
 - **Category optional** (`nullable`) on expense/income; transfers never have one.
+- **Extends [[delete-account]]:** once transactions exist, the account-delete route
+  must gain the transfer-entanglement guard and `onDelete: Cascade` on the
+  `Transaction → account` FK (both vacuous until now). See
+  [[0004-conditional-account-delete]].
 - Uses: [[transactions]] · [[log-expense]] (the expense entry form) ·
   [[0001-transfer-single-row]] · [[0001-date-day-shift]]
 

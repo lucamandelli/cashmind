@@ -1,5 +1,5 @@
 /**
- * Integration tests for GET/POST /accounts and PATCH/archive/unarchive endpoints.
+ * Integration tests for GET/POST /accounts and PATCH/archive/unarchive/DELETE endpoints.
  * Uses a real Postgres instance started by the Vitest globalSetup (Testcontainers).
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
@@ -80,6 +80,14 @@ describe("auth gate", () => {
     const res = await app.inject({
       method: "POST",
       url: "/accounts/fake-id/unarchive",
+    });
+    expect(res.statusCode).toBe(401);
+  });
+
+  it("DELETE /accounts/:id returns 401 without a session", async () => {
+    const res = await app.inject({
+      method: "DELETE",
+      url: "/accounts/fake-id",
     });
     expect(res.statusCode).toBe(401);
   });
@@ -542,5 +550,118 @@ describe("archive / unarchive", () => {
     });
 
     expect(res.statusCode).toBe(404);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// DELETE — DELETE /accounts/:id
+// ---------------------------------------------------------------------------
+
+describe("DELETE /accounts/:id", () => {
+  it("returns 404 for a missing id (with a valid session)", async () => {
+    const ctx = await testAuth.$context;
+    const user = ctx.test.createUser();
+    await ctx.test.saveUser(user);
+    const cookie = await getCookieHeader(user.id);
+
+    const res = await app.inject({
+      method: "DELETE",
+      url: "/accounts/non-existent-id",
+      headers: { cookie },
+    });
+
+    expect(res.statusCode).toBe(404);
+  });
+
+  it("returns 404 for another user's archived account (isolation)", async () => {
+    const ctx = await testAuth.$context;
+    const owner = ctx.test.createUser();
+    const attacker = ctx.test.createUser();
+    await ctx.test.saveUser(owner);
+    await ctx.test.saveUser(attacker);
+    const ownerCookie = await getCookieHeader(owner.id);
+    const attackerCookie = await getCookieHeader(attacker.id);
+
+    // Owner creates and archives an account
+    const created = await app.inject({
+      method: "POST",
+      url: "/accounts",
+      headers: { cookie: ownerCookie },
+      payload: { name: "Owner Account" },
+    });
+    const { id } = created.json();
+    await app.inject({
+      method: "POST",
+      url: `/accounts/${id}/archive`,
+      headers: { cookie: ownerCookie },
+    });
+
+    // Attacker attempts to delete owner's archived account — must get 404, not 204
+    const res = await app.inject({
+      method: "DELETE",
+      url: `/accounts/${id}`,
+      headers: { cookie: attackerCookie },
+    });
+
+    expect(res.statusCode).toBe(404);
+    expect(await testDb.account.findFirst({ where: { id } })).not.toBeNull();
+  });
+
+  it("returns 409 when the account is active (not archived)", async () => {
+    const ctx = await testAuth.$context;
+    const user = ctx.test.createUser();
+    await ctx.test.saveUser(user);
+    const cookie = await getCookieHeader(user.id);
+
+    const created = await app.inject({
+      method: "POST",
+      url: "/accounts",
+      headers: { cookie },
+      payload: { name: "Active Account" },
+    });
+    const { id } = created.json();
+
+    const res = await app.inject({
+      method: "DELETE",
+      url: `/accounts/${id}`,
+      headers: { cookie },
+    });
+
+    expect(res.statusCode).toBe(409);
+    expect(res.json().error).toBe("account is not archived");
+  });
+
+  it("returns 204 and permanently removes an archived account", async () => {
+    const ctx = await testAuth.$context;
+    const user = ctx.test.createUser();
+    await ctx.test.saveUser(user);
+    const cookie = await getCookieHeader(user.id);
+
+    // Create and archive the account
+    const created = await app.inject({
+      method: "POST",
+      url: "/accounts",
+      headers: { cookie },
+      payload: { name: "To Be Deleted" },
+    });
+    const { id } = created.json();
+    await app.inject({
+      method: "POST",
+      url: `/accounts/${id}/archive`,
+      headers: { cookie },
+    });
+
+    // Delete the archived account
+    const res = await app.inject({
+      method: "DELETE",
+      url: `/accounts/${id}`,
+      headers: { cookie },
+    });
+
+    expect(res.statusCode).toBe(204);
+
+    // Assert the row is actually gone from the database
+    const row = await testDb.account.findFirst({ where: { id } });
+    expect(row).toBeNull();
   });
 });
