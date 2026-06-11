@@ -1,7 +1,7 @@
 ---
 type: conventions
 status: current
-updated: 2026-06-09
+updated: 2026-06-11
 summary: How we build CashMind — testing strategy, tooling, and code style.
 tags: [conventions]
 ---
@@ -61,5 +61,28 @@ Examples: `feat(api): add transactions endpoint` ·
 
 - Code and its `docs/` note change in the **same commit** (see [[README]]).
 - No Commitlint/Husky enforcement yet — add it only if the convention slips.
+
+## Frontend design tokens
+
+Tokens live in `apps/web/src/index.css`. Fonts load from Google Fonts via
+`apps/web/index.html`.
+
+New frontend code writes **design roles** — `bg-surface`, `text-positive`,
+`text-text-2`, `bg-surface-3` — as the primary styling vocabulary.
+shadcn names (`bg-primary`, `bg-background`, `text-foreground`) remain valid
+because they are aliased onto the design roles; existing components already
+using them continue to work.
+
+**JetBrains Mono** (`font-mono`) is **reserved for monetary amounts** — tabular
+figures that align in columns. This is a direct fit for the integer-cents money
+invariant. Never use it for decorative or non-numeric text.
+
+Dark mode resolves when the `.dark` class is on a parent element; both themes
+are wired (use `dark:` utilities freely), but **no toggle UI ships yet** — that
+is a later UI task.
+
+See [[0005-design-token-system]] for the decision rationale, and `apps/web/src/index.css`
+for the actual token definitions. Do not copy token values or tables into docs —
+a copied fact is a future lie.
 
 Parent: [[00-overview]]
