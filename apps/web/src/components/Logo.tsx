@@ -82,7 +82,8 @@ export function Logo({ variant = "symbol", className, height = 32 }: LogoProps) 
       />
       <img
         src={symbolDark}
-        alt="CashMind"
+        alt=""
+        aria-hidden="true"
         height={height}
         style={{ height, width: height }}
         className="hidden dark:inline"

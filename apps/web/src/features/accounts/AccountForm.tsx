@@ -8,14 +8,14 @@
  * Money wiring (the ONE piece of real UI logic):
  *   - The "Initial balance" input uses NumericFormat (react-number-format) for
  *     live pt-BR formatting: thousands separator "." and decimal separator ",".
- *     The stored RHF value is the formatted display string (e.g. "6.000,00").
- *   - The Zod transform strips all dots (which are always thousands separators
- *     in this input — the user can never type a dot) before calling parseReais,
- *     then passes the result to toMinor for integer cents.
+ *     RHF stores NumericFormat's clean `values.value` (English-format numeric
+ *     string, e.g. "6000" or "9.99") — NOT the formatted display string.
+ *   - The Zod transform calls parseReais() on that clean value directly (no
+ *     dot-stripping needed), then toMinor() converts to integer cents.
  *   - On blur, fixedDecimalScale=true pads decimals to 2 places (e.g. "0,1" →
  *     "0,10"); while typing, fixedDecimalScale=false lets the user type freely.
- *   - When editing an existing account, the field pre-fills with toLocaleString
- *     (pt-BR, 2 fraction digits) so the thousands dot is included.
+ *   - When editing, the field pre-fills with String(toMajor(initialBalance))
+ *     (English decimal, e.g. "9.99"); NumericFormat formats it as pt-BR for display.
  *   - initialBalance may be negative — allowNegative={true} is set.
  *   - currency has no input; defaults to BRL.
  */
