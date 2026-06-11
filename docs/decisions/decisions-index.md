@@ -18,5 +18,6 @@ over time.
 - [[0002-auth-account-rename]] — Better Auth's `Account` renamed to `AuthAccount`
 - [[0003-single-user-signup-lock]] — public sign-up locked in the MVP (single-user)
 - [[0004-conditional-account-delete]] — archived accounts may be hard-deleted, but only when not entangled by transfers
+- [[0005-design-token-system]] — adopt the design-system tokens as canonical; alias shadcn's names onto them (Tailwind v4 `@theme inline`, `.dark` class)
 
 Parent: [[00-overview]]

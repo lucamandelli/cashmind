@@ -30,7 +30,8 @@ This note is two things at once:
 
 ## Build order
 
-Items 0–5 are product; items 6–7 are **delivery** (not product features, but the
+Items 0–5 are product; **1c is a foundation** item (frontend plumbing the later
+product phases stand on); items 6–7 are **delivery** (not product features, but the
 MVP isn't "done" until the app is usable on a phone with data protected).
 
 ### 0 · Walking skeleton
@@ -61,6 +62,13 @@ archive/unarchive) and ship the app's first production-quality UI.
 Permanently delete an archived account, gated by a transfer-entanglement guard and
 a destructive-confirm modal — the deliberate escape hatch out of archive.
 → [[delete-account]] · Touches: [[accounts]] · [[accounts-api]] · [[accounts-management]] · [[0004-conditional-account-delete]] · status: planned
+
+### 1c · Design tokens — _foundation_
+Wire the design-system color/token set into Tailwind v4 + shadcn (`apps/web`) so it
+becomes the shared visual language for every frontend phase after it. Not a product
+flow — its rationale and build brief live in the ADR; the `## Frontend design tokens`
+convention section lands with the code. Existing screens are **not** re-skinned here.
+→ [[0005-design-token-system]] · Touches: [[conventions]] · status: planned
 
 ### 2 · Categories
 
