@@ -113,7 +113,11 @@ User → Accounts → Transactions → Categories
 ### Dates
 - Transaction date → a **`DATE`** column (no time/zone; avoids the UTC
   "day shift" — see [[0001-date-day-shift]]).
-- `created_at` / `updated_at` → **`timestamptz`** in UTC (audit, Prisma-managed).
+- `created_at` / `updated_at` → **`timestamptz`** in UTC (audit, Prisma-managed)
+  — in **our domain tables**. **Better Auth's tables follow the library's own
+  schema** (they keep `TIMESTAMP(3)`) and are deliberately left untouched, so we
+  don't diverge from the adapter and risk breakage on upgrades — see
+  [[0004-better-auth-tables-timestamp3]].
 - pt-BR formatting only at the UI edge.
 
 ---

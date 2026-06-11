@@ -16,8 +16,10 @@ Full architecture and rationale: see `docs/ARCHITECTURE.md`.
   authenticated user. The user is never chosen by input or by an LLM.
 - **Zod schemas in `packages/shared` are the source of truth** for data shapes,
   validation, and types. Don't redefine types — infer them from Zod.
-- **Transaction date is a `DATE`** (no time, no timezone).
-  `created_at` / `updated_at` are `timestamptz` in UTC.
+- **Transaction date is a `DATE`** (no time, no timezone). `created_at` /
+  `updated_at` are `timestamptz` in UTC **in our domain tables**. Better Auth's
+  tables follow the library's own schema (they keep `TIMESTAMP(3)`) — don't migrate
+  them to match our convention; see `docs/log/0004-better-auth-tables-timestamp3.md`.
 - **Archive, never delete** domain records (categories, accounts): set `archived_at`.
 - Base currency is **BRL**, mono-currency. The `currency` field exists on records
   so multi-currency can be added later without a migration.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { divideMinor, formatBRL, toMajor, toMinor } from "./money.js";
+import { divideMinor, formatBRL, parseReais, toMajor, toMinor } from "./money.js";
 
 describe("toMinor", () => {
   it("converts whole BRL to cents", () => {
@@ -61,5 +61,111 @@ describe("divideMinor", () => {
     expect(divideMinor(100, 3)).toBe(33);
     // 101 / 2 = 50.5 → rounds to 51
     expect(divideMinor(101, 2)).toBe(51);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// parseReais — parse a user-typed BRL string into a JS major-unit number,
+// then composed with toMinor to reach integer cents.
+// ---------------------------------------------------------------------------
+
+describe("parseReais — accepted inputs", () => {
+  it("parses a plain integer ('100') → 100", () => {
+    expect(parseReais("100")).toBe(100);
+  });
+
+  it("parses dot-decimal English format ('9.99') → 9.99", () => {
+    expect(parseReais("9.99")).toBeCloseTo(9.99);
+  });
+
+  it("parses comma-decimal pt-BR format ('9,99') → 9.99", () => {
+    expect(parseReais("9,99")).toBeCloseTo(9.99);
+  });
+
+  it("parses pt-BR thousands + comma decimal ('1.234,56') → 1234.56", () => {
+    expect(parseReais("1.234,56")).toBeCloseTo(1234.56);
+  });
+
+  it("parses a negative plain integer ('-500') → -500", () => {
+    expect(parseReais("-500")).toBe(-500);
+  });
+
+  it("parses a negative comma-decimal ('-1,50') → -1.5", () => {
+    expect(parseReais("-1,50")).toBeCloseTo(-1.5);
+  });
+
+  it("trims surrounding whitespace before parsing", () => {
+    expect(parseReais("  100  ")).toBe(100);
+  });
+});
+
+describe("parseReais → toMinor — composed cent values", () => {
+  it("'100' → toMinor → 10000 cents", () => {
+    expect(toMinor(parseReais("100"))).toBe(10000);
+  });
+
+  it("'9.99' → toMinor → 999 cents", () => {
+    expect(toMinor(parseReais("9.99"))).toBe(999);
+  });
+
+  it("'9,99' → toMinor → 999 cents", () => {
+    expect(toMinor(parseReais("9,99"))).toBe(999);
+  });
+
+  it("'1.234,56' → toMinor → 123456 cents", () => {
+    expect(toMinor(parseReais("1.234,56"))).toBe(123456);
+  });
+
+  it("'-500' → toMinor → -50000 cents", () => {
+    expect(toMinor(parseReais("-500"))).toBe(-50000);
+  });
+
+  it("'-1,50' → toMinor → -150 cents", () => {
+    expect(toMinor(parseReais("-1,50"))).toBe(-150);
+  });
+});
+
+describe("parseReais — rejected inputs (must throw)", () => {
+  it("throws on ambiguous double-comma input ('1,234,56') — the shipped silent bug", () => {
+    // More than one comma is an ambiguous fat-finger; previously silently yielded 123 cents.
+    expect(() => parseReais("1,234,56")).toThrow();
+  });
+
+  it("throws on empty string", () => {
+    expect(() => parseReais("")).toThrow();
+  });
+
+  it("throws on whitespace-only string", () => {
+    expect(() => parseReais("   ")).toThrow();
+  });
+
+  it("throws on non-numeric text ('abc')", () => {
+    expect(() => parseReais("abc")).toThrow();
+  });
+
+  it("throws on NaN-producing input ('--1')", () => {
+    expect(() => parseReais("--1")).toThrow();
+  });
+
+  it("throws on non-finite input ('Infinity')", () => {
+    expect(() => parseReais("Infinity")).toThrow();
+  });
+});
+
+describe("parseReais — edit round-trip (toMajor → String → parseReais → toMinor)", () => {
+  it("round-trips a positive amount: 999 cents → '9.99' → 999 cents", () => {
+    expect(toMinor(parseReais(String(toMajor(999))))).toBe(999);
+  });
+
+  it("round-trips a large positive amount: 123456 cents → '1234.56' → 123456 cents", () => {
+    expect(toMinor(parseReais(String(toMajor(123456))))).toBe(123456);
+  });
+
+  it("round-trips a negative amount: -15000 cents → '-150' → -15000 cents", () => {
+    expect(toMinor(parseReais(String(toMajor(-15000))))).toBe(-15000);
+  });
+
+  it("round-trips zero: 0 cents → '0' → 0 cents", () => {
+    expect(toMinor(parseReais(String(toMajor(0))))).toBe(0);
   });
 });
