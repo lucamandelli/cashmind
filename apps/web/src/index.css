@@ -1,1 +1,284 @@
 @import "tailwindcss";
+
+/* Dark mode keyed off the .dark class (design system's data-theme strategy
+   is not adopted — see docs/decisions/0005-design-token-system.md). */
+@custom-variant dark (&:is(.dark *));
+
+/* ===========================================================
+   RAW PALETTE — theme-independent anchors
+   Source of truth: design-system/CashMind Color System.html
+   =========================================================== */
+:root {
+  /* Brand emerald ramp */
+  --emerald-50: #E6F7EF;
+  --emerald-100: #C5EEDC;
+  --emerald-200: #97E0C1;
+  --emerald-300: #5FCDA0;
+  --emerald-400: #2DB582;
+  --emerald-500: #0A9D66;
+  --emerald-600: #088053;
+  --emerald-700: #086843;
+  --emerald-800: #0A5236;
+  --emerald-900: #0A3D29;
+  --emerald-950: #06251A;
+  --emerald-bright: #16C98A;
+  --ink: #14181C;
+
+  /* Neutral / slate ramp */
+  --n0: #FFFFFF;
+  --n25: #FAFBFB;
+  --n50: #F4F6F6;
+  --n100: #ECEFEF;
+  --n200: #DFE4E4;
+  --n300: #C8CFD0;
+  --n400: #97A1A3;
+  --n500: #6A7578;
+  --n600: #4D585B;
+  --n700: #36403F;
+  --n800: #222A2D;
+  --n900: #151B1E;
+  --n950: #0D1113;
+
+  /* Semantic anchors */
+  --red-500: #DC4C4E;
+  --red-bright: #FF6B6E;
+  --amber-500: #D98324;
+  --amber-bright: #F5B046;
+  --blue-500: #2D74C4;
+  --blue-bright: #5AA0E8;
+
+  /* Radius seed — do not override; theme radius tokens in @theme inline below */
+  --radius: 14px;
+}
+
+/* ===========================================================
+   LIGHT THEME ROLES  (:root  = default/light)
+   DARK THEME ROLES   (.dark  = dark)
+
+   Design roles are source of truth. shadcn names that share
+   the exact same name as a design role (--primary, --border)
+   are defined once as literals here — no alias needed. Names
+   that differ are aliased below with var() references.
+   =========================================================== */
+:root {
+  /* --- Design roles (light) --- */
+  --bg: #F4F6F6;
+  --surface: #FFFFFF;
+  --surface-2: #F4F6F6;
+  --surface-3: #ECEFEF;
+  --border: #DFE4E4;           /* also serves as shadcn --border; defined once, no self-ref */
+  --border-strong: #C8CFD0;
+
+  --text: #151B1E;
+  --text-2: #4D585B;
+  --text-3: #6A7578;
+  --text-on-primary: #FFFFFF;
+
+  --primary: #0A9D66;          /* also serves as shadcn --primary; defined once, no self-ref */
+  --primary-hover: #088053;
+  --primary-pressed: #086843;
+  --primary-subtle: #E6F7EF;
+  --primary-border: #97E0C1;
+
+  --positive: #0A9D66;
+  --positive-subtle: #E6F7EF;
+  --negative: #DC4C4E;
+  --negative-subtle: #FBEAEA;
+  --warning: #B9710F;
+  --warning-subtle: #FBF1E2;
+  --info: #2D74C4;
+  --info-subtle: #E8F1FA;
+
+  --focus: rgba(10, 157, 102, 0.32);
+  --shadow: 0 1px 2px rgba(20, 24, 28, 0.04), 0 8px 24px rgba(20, 24, 28, 0.06);
+  --shadow-card: 0 1px 3px rgba(20, 24, 28, 0.05), 0 12px 32px rgba(20, 24, 28, 0.07);
+
+  /* --- shadcn aliases onto design roles (light)
+         Only names that differ from the design role name are listed here. --- */
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+  /* --primary already defined as literal above */
+  --primary-foreground: var(--text-on-primary);
+  --secondary: var(--surface-3);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-3);
+  --accent: var(--surface-3);
+  --accent-foreground: var(--text);
+  --destructive: var(--negative);
+  /* --border already defined as literal above */
+  --input: var(--border);
+  --ring: var(--primary);  /* solid color — shadcn uses --ring for both focus-ring glow AND focus border; --focus (translucent) remains the separate glow role */
+
+  /* --chart-1..5 intentionally deferred until Dashboard feature needs them */
+  /* --sidebar-* intentionally deferred until a sidebar feature needs them */
+}
+
+.dark {
+  /* --- Design roles (dark) --- */
+  --bg: #0D1113;
+  --surface: #151B1E;
+  --surface-2: #1B2225;
+  --surface-3: #222A2D;
+  --border: #2A3236;           /* also serves as shadcn --border; defined once, no self-ref */
+  --border-strong: #39443F;
+
+  --text: #ECEFEF;
+  --text-2: #AEB7B9;
+  --text-3: #8A9396;
+  --text-on-primary: #06251A;
+
+  --primary: #16C98A;          /* also serves as shadcn --primary; defined once, no self-ref */
+  --primary-hover: #2DD89A;
+  --primary-pressed: #12B27A;
+  --primary-subtle: rgba(22, 201, 138, 0.14);
+  --primary-border: rgba(22, 201, 138, 0.34);
+
+  --positive: #2DD89A;
+  --positive-subtle: rgba(22, 201, 138, 0.14);
+  --negative: #FF6B6E;
+  --negative-subtle: rgba(255, 107, 110, 0.14);
+  --warning: #F5B046;
+  --warning-subtle: rgba(245, 176, 70, 0.14);
+  --info: #5AA0E8;
+  --info-subtle: rgba(90, 160, 232, 0.14);
+
+  --focus: rgba(22, 201, 138, 0.40);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.45), 0 14px 34px rgba(0, 0, 0, 0.5);
+
+  /* --- shadcn aliases onto design roles (dark)
+         Only names that differ from the design role name are listed here. --- */
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+  /* --primary already defined as literal above */
+  --primary-foreground: var(--text-on-primary);
+  --secondary: var(--surface-3);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-3);
+  --accent: var(--surface-3);
+  --accent-foreground: var(--text);
+  --destructive: var(--negative);
+  /* --border already defined as literal above */
+  --input: var(--border);
+  --ring: var(--primary);  /* solid color — shadcn uses --ring for both focus-ring glow AND focus border; --focus (translucent) remains the separate glow role */
+
+  /* --chart-1..5 intentionally deferred until Dashboard feature needs them */
+  /* --sidebar-* intentionally deferred until a sidebar feature needs them */
+}
+
+/* ===========================================================
+   TAILWIND v4 THEME INLINE
+   Maps CSS variables to Tailwind utility classes.
+
+   Radius calc family seeds from --radius:14px (px kept, not rem —
+   matches the design file; deviation from shadcn's 0.625rem default
+   is intentional). Multiplier ratios confirmed via shadcn v4 docs.
+   =========================================================== */
+@theme inline {
+  /* --- Fonts --- */
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;  /* reserved for monetary amounts (tabular figures) */
+
+  /* --- Radius (shadcn v4 multiplier family, seeded from --radius:14px) --- */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* --- shadcn --color-* namespace (existing components use these) --- */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  /* --color-chart-1..5 intentionally deferred until Dashboard feature needs them */
+  /* --color-sidebar-* intentionally deferred until a sidebar feature needs them */
+
+  /* --- Design roles (finance-native utilities: bg-surface, text-positive, etc.) --- */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-primary-border: var(--primary-border);
+  --color-positive: var(--positive);
+  --color-positive-subtle: var(--positive-subtle);
+  --color-negative: var(--negative);
+  --color-negative-subtle: var(--negative-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-info: var(--info);
+  --color-info-subtle: var(--info-subtle);
+
+  /* --- Emerald ramp (enables text-emerald-400, bg-emerald-50, etc.) --- */
+  --color-emerald-50: var(--emerald-50);
+  --color-emerald-100: var(--emerald-100);
+  --color-emerald-200: var(--emerald-200);
+  --color-emerald-300: var(--emerald-300);
+  --color-emerald-400: var(--emerald-400);
+  --color-emerald-500: var(--emerald-500);
+  --color-emerald-600: var(--emerald-600);
+  --color-emerald-700: var(--emerald-700);
+  --color-emerald-800: var(--emerald-800);
+  --color-emerald-900: var(--emerald-900);
+  --color-emerald-950: var(--emerald-950);
+
+  /* --- Neutral ramp (enables text-n400, bg-n50, etc.) --- */
+  --color-n0: var(--n0);
+  --color-n25: var(--n25);
+  --color-n50: var(--n50);
+  --color-n100: var(--n100);
+  --color-n200: var(--n200);
+  --color-n300: var(--n300);
+  --color-n400: var(--n400);
+  --color-n500: var(--n500);
+  --color-n600: var(--n600);
+  --color-n700: var(--n700);
+  --color-n800: var(--n800);
+  --color-n900: var(--n900);
+  --color-n950: var(--n950);
+}
+
+/* ===========================================================
+   BASE LAYER — body defaults (shadcn v4 convention)
+   =========================================================== */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+}

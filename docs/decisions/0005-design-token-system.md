@@ -54,8 +54,11 @@ Adopt the design-system tokens as the **canonical styling vocabulary** of
    `--background: var(--bg)`, `--foreground: var(--text)`, `--card: var(--surface)`,
    `--primary: var(--primary)`, `--primary-foreground: var(--text-on-primary)`,
    `--destructive: var(--negative)`, `--border: var(--border)`,
-   `--ring: var(--focus)`, and so on. The installed shadcn components light up with
-   zero edits to their code.
+   `--ring: var(--primary)`, and so on. The installed shadcn components light up with
+   zero edits to their code. (`--ring` aliases `--primary`, not `--focus`, because
+   shadcn maps `--ring` to both the focus-ring glow and the solid focus border;
+   a translucent value renders washed-out on the border. `--focus` is kept as the
+   separate translucent glow role for future custom use.)
 3. **Expose both vocabularies as Tailwind utilities** via `@theme inline` (the v4
    directive for theme tokens that reference other CSS variables): map shadcn's
    `--color-*` namespace (`--color-background: var(--background)`, …) so existing
