@@ -1,7 +1,7 @@
 ---
 type: overview
 status: current
-updated: 2026-06-10
+updated: 2026-06-12
 summary: MVP roadmap — the ordered, dependency-sorted feature backlog to ship CashMind. Each item becomes its own feature note when work on it starts.
 tags: [features, moc, roadmap]
 ---
@@ -69,6 +69,12 @@ becomes the shared visual language for every frontend phase after it. Not a prod
 flow — its rationale and build brief live in the ADR; the `## Frontend design tokens`
 convention section lands with the code. Existing screens are **not** re-skinned here.
 → [[0005-design-token-system]] · Touches: [[conventions]] · status: planned
+
+### 1d · Welcome screen
+Branded public front door at `/` — animated lockup, tagline, Sign-in CTA. The
+`/login` route gains an auth guard that redirects logged-in users straight to
+`/accounts`. Replaces the walking-skeleton health-check debug page.
+→ [[welcome]] · Touches: [[0005-design-token-system]] · status: current
 
 ### 2 · Categories
 

@@ -229,6 +229,7 @@
   --color-text: var(--text);
   --color-text-2: var(--text-2);
   --color-text-3: var(--text-3);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-subtle: var(--primary-subtle);
   --color-primary-border: var(--primary-border);
   --color-positive: var(--positive);
@@ -267,6 +268,55 @@
   --color-n800: var(--n800);
   --color-n900: var(--n900);
   --color-n950: var(--n950);
+}
+
+/* ===========================================================
+   WELCOME SCREEN — entrance animation
+   Scoped under .cm-welcome to avoid global collisions.
+   Keyframe names use the cm- prefix for the same reason.
+   =========================================================== */
+
+.cm-glow {
+  opacity: 0;
+  animation: cm-glow 1.4s ease-out 0.2s forwards;
+}
+.cm-welcome .cm-ring    { animation: cm-ring     1.05s cubic-bezier(.65,0,.35,1)  0s     both; }
+.cm-welcome .cm-dollar  { animation: cm-pop       .55s cubic-bezier(.2,.7,.2,1)   .42s   both; }
+.cm-welcome .cm-wordmark{ animation: cm-wipe       .8s cubic-bezier(.22,1,.36,1)  .6s    both; }
+.cm-welcome .cm-tagline { animation: cm-up          .7s cubic-bezier(.22,1,.36,1) 1.05s  both; }
+.cm-welcome .cm-cta     { animation: cm-up          .7s cubic-bezier(.22,1,.36,1) 1.22s  both; }
+.cm-welcome .cm-footnote{ animation: cm-up          .7s cubic-bezier(.22,1,.36,1) 1.38s  both; }
+
+@keyframes cm-ring {
+  from { stroke-dasharray: 0 207; opacity: 0; }
+  35%  { opacity: 1; }
+  to   { stroke-dasharray: 158 49; opacity: 1; }
+}
+@keyframes cm-pop {
+  from { opacity: 0; transform: scale(.82); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes cm-wipe {
+  from { opacity: 0; clip-path: inset(0 100% 0 0); transform: translateX(-4px); filter: blur(2px); }
+  to   { opacity: 1; clip-path: inset(0 0% 0 0);   transform: translateX(0);    filter: blur(0); }
+}
+@keyframes cm-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes cm-glow {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-welcome .cm-ring,
+  .cm-welcome .cm-dollar,
+  .cm-welcome .cm-wordmark,
+  .cm-welcome .cm-tagline,
+  .cm-welcome .cm-cta,
+  .cm-welcome .cm-footnote { animation: none; }
+  .cm-glow { animation: none; opacity: 1; }
 }
 
 /* ===========================================================
