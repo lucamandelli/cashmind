@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { parseReais } from "@cashmind/shared";
+import { parseReais, toMinor, MIN_AMOUNT_MINOR, MAX_AMOUNT_MINOR } from "@cashmind/shared";
 
 export const FormSchema = z.object({
   name: z
@@ -22,7 +22,14 @@ export const FormSchema = z.object({
         return Number.NaN;
       }
     })
-    .pipe(z.number().finite("Enter a valid amount")),
+    .pipe(z.number().finite("Enter a valid amount"))
+    .refine(
+      (v) => {
+        const minor = toMinor(v);
+        return minor >= MIN_AMOUNT_MINOR && minor <= MAX_AMOUNT_MINOR;
+      },
+      { message: "Amount is too large" },
+    ),
 });
 
 export type FormValues = z.input<typeof FormSchema>;

@@ -170,6 +170,49 @@ describe("POST /accounts", () => {
     expect(res.statusCode).toBe(201);
     expect(res.json().initialBalance).toBe(0);
   });
+
+  it("regression: accepts initialBalance 12000000000 (was INT4 overflow — must return 201 and round-trip the value)", async () => {
+    const ctx = await testAuth.$context;
+    const user = ctx.test.createUser();
+    await ctx.test.saveUser(user);
+    const cookie = await getCookieHeader(user.id);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/accounts",
+      headers: { cookie },
+      payload: { name: "High Net Worth", initialBalance: 12_000_000_000 },
+    });
+
+    expect(res.statusCode).toBe(201);
+    const body = res.json();
+    expect(body.initialBalance).toBe(12_000_000_000);
+
+    // Confirm the value round-trips on read
+    const listRes = await app.inject({
+      method: "GET",
+      url: "/accounts",
+      headers: { cookie },
+    });
+    expect(listRes.json()[0].initialBalance).toBe(12_000_000_000);
+  });
+
+  it("returns 400 (not 500) for an out-of-range initialBalance on POST", async () => {
+    const ctx = await testAuth.$context;
+    const user = ctx.test.createUser();
+    await ctx.test.saveUser(user);
+    const cookie = await getCookieHeader(user.id);
+
+    // Number.MAX_SAFE_INTEGER + 1 exceeds AmountMinorSchema's max
+    const res = await app.inject({
+      method: "POST",
+      url: "/accounts",
+      headers: { cookie },
+      payload: { name: "Too Big", initialBalance: Number.MAX_SAFE_INTEGER + 1 },
+    });
+
+    expect(res.statusCode).toBe(400);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -411,6 +454,31 @@ describe("PATCH /accounts/:id", () => {
     });
 
     expect(res.statusCode).toBe(404);
+  });
+
+  it("PATCH with a large valid initialBalance round-trips correctly", async () => {
+    const ctx = await testAuth.$context;
+    const user = ctx.test.createUser();
+    await ctx.test.saveUser(user);
+    const cookie = await getCookieHeader(user.id);
+
+    const created = await app.inject({
+      method: "POST",
+      url: "/accounts",
+      headers: { cookie },
+      payload: { name: "Investment", initialBalance: 1000 },
+    });
+    const { id } = created.json();
+
+    const patchRes = await app.inject({
+      method: "PATCH",
+      url: `/accounts/${id}`,
+      headers: { cookie },
+      payload: { initialBalance: 12_000_000_000 },
+    });
+
+    expect(patchRes.statusCode).toBe(200);
+    expect(patchRes.json().initialBalance).toBe(12_000_000_000);
   });
 });
 
