@@ -1,8 +1,6 @@
 import { useState } from "react";
 import type { Account } from "@cashmind/shared";
-import { AccountList } from "@/features/accounts/components/AccountList";
-import { AccountForm } from "@/features/accounts/components/AccountForm";
-import { useAccounts, useToggleArchive, useDeleteAccount } from "@/features/accounts/hooks/useAccounts";
+import { AccountList, AccountForm, useAccounts, useToggleArchive, useDeleteAccount } from "@/features/accounts";
 import { Button } from "@/components/ui/button";
 import { Archive, Plus } from "lucide-react";
 
