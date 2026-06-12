@@ -1,7 +1,7 @@
 ---
 type: overview
 status: current
-updated: 2026-06-10
+updated: 2026-06-12
 summary: Sub-hub for Architecture Decision Records (the "why").
 tags: [decisions, adr, moc]
 ---
@@ -19,5 +19,6 @@ over time.
 - [[0003-single-user-signup-lock]] — public sign-up locked in the MVP (single-user)
 - [[0004-conditional-account-delete]] — archived accounts may be hard-deleted, but only when not entangled by transfers
 - [[0005-design-token-system]] — adopt the design-system tokens as canonical; alias shadcn's names onto them (Tailwind v4 `@theme inline`, `.dark` class)
+- [[0006-frontend-feature-folder-architecture]] — thin routes → pages as containers → feature folders for UI/logic/data; all writes via `useMutation`; shared transport in `services/api.ts`
 
 Parent: [[00-overview]]
