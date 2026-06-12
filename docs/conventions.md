@@ -1,7 +1,7 @@
 ---
 type: conventions
 status: current
-updated: 2026-06-11
+updated: 2026-06-12
 summary: How we build CashMind — testing strategy, tooling, and code style.
 tags: [conventions]
 ---
@@ -84,5 +84,45 @@ is a later UI task.
 See [[0005-design-token-system]] for the decision rationale, and `apps/web/src/index.css`
 for the actual token definitions. Do not copy token values or tables into docs —
 a copied fact is a future lie.
+
+## Frontend architecture
+
+`apps/web` follows a feature-folder structure. The canonical example is
+`features/accounts/`. See [[0006-frontend-feature-folder-architecture]] for the
+decision rationale and the two intentional shadcn exceptions.
+
+**Layers and their contracts:**
+
+- **`routes/`** — routing only. TanStack Router owns this directory and
+  auto-generates `routeTree.gen.ts`. Every route file does exactly one thing:
+  `createFileRoute(...).component = <Page>`. No logic, no JSX beyond the import.
+- **`pages/`** — containers. A page composes one feature's hooks and components
+  together, manages top-level local state (open/editing/showArchived), and wires
+  handlers. Pages are not reused — one page per route.
+- **`features/<name>/`** — feature modules, each owning:
+  - `components/` — props-driven, presentational. No direct data fetching.
+  - `hooks/` — React Query queries + mutations. All server writes use `useMutation`;
+    no raw `fetch` in components.
+  - `services/<name>Api.ts` — pure async fetchers over `services/api.ts`.
+  - `<name>.schema.ts` — Zod schema local to the feature's form (alongside `hooks/`).
+  - `types/index.ts` — feature-local types.
+  - `index.ts` — public API barrel; only this barrel is imported from outside the feature.
+- **`layouts/`** — shell components (`AuthLayout`, `AuthenticatedLayout`). Imported
+  by route files or pages; never import downward into features.
+- **`services/api.ts`** — shared transport: `apiFetch` (adds `credentials`, JSON
+  headers when a body is present, throws on non-ok) + `extractErrorMessage`.
+- **`config/queryClient.ts`** — the singleton `QueryClient`; imported by `main.tsx`
+  and test wrappers.
+- **`hooks/`**, **`utils/`**, **`store/`** — global dirs for cross-feature concerns.
+  `store/` and `utils/` are placeholder dirs (`store/.gitkeep`, `utils/.gitkeep`)
+  intentionally reserved for Zustand stores and pure helpers when needed.
+
+**Two shadcn exceptions (intentional, documented):**
+
+1. `components/ui/` stays flat — shadcn CLI manages it; `components.json` hardcodes
+   the path.
+2. `lib/utils.ts` is the `cn` helper — shadcn requires `@/lib/utils`; never move it.
+
+Our own components follow the `components/<Name>/Name.tsx` + barrel pattern.
 
 Parent: [[00-overview]]
