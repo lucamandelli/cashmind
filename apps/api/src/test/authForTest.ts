@@ -6,11 +6,14 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { testUtils } from "better-auth/plugins";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../generated/prisma/client.js";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 // Each test file that imports this module gets a client scoped to the test DB
 // (DATABASE_URL is set in setupEnv.ts before any import).
-const testDb = new PrismaClient();
+const testDb = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+});
 
 export const testAuth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET ?? "test-secret-32-chars-long-enough!!",
