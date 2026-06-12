@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CashMind — Welcome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#FAFAF7;
+    --surface:#FFFFFF;
+    --emerald:#0A9D66;
+    --emerald-hover:#088053;
+    --emerald-bright:#16C98A;
+    --ink:#151B1E;
+    --muted:#4D585B;
+    --muted-2:#6A7578;
+    --faint:#97A1A3;
+    --border:#ECEAE3;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .stage{
+    position:relative;
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:32px 24px;
+    overflow:hidden;
+  }
+
+  /* Subtle paper grain (~1.5%) */
+  .grain{
+    position:absolute; inset:0;
+    pointer-events:none;
+    opacity:.018;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:180px 180px;
+  }
+  /* Faint warm vignette to seat the mark */
+  .glow{
+    position:absolute; left:50%; top:42%;
+    width:680px; height:680px; transform:translate(-50%,-50%);
+    pointer-events:none;
+    background:radial-gradient(circle, rgba(22,201,138,.06) 0%, rgba(22,201,138,0) 60%);
+    opacity:0; animation:cm-glow 1.4s ease-out .2s forwards;
+  }
+
+  .content{
+    position:relative; z-index:2;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+  }
+
+  /* ---- Lockup ---- */
+  .lockup{
+    display:flex; align-items:center; gap:18px;
+  }
+  .symbol{
+    width:clamp(46px,12vw,58px); height:clamp(46px,12vw,58px);
+    flex-shrink:0; display:block;
+  }
+  .symbol .ring{
+    fill:none; stroke:var(--emerald); stroke-width:5.5; stroke-linecap:round;
+    /* resting state = the gapped focus ring */
+    stroke-dasharray:158 49;
+  }
+  .symbol .dollar{ fill:var(--ink); }
+
+  .wordmark{
+    font-size:clamp(34px,9.5vw,46px);
+    font-weight:700; letter-spacing:-.028em; line-height:1;
+    white-space:nowrap;
+  }
+  .wordmark .cash{ color:var(--ink); }
+  .wordmark .mind{ color:var(--emerald); font-weight:400; }
+
+  .tagline{
+    margin-top:26px;
+    font-size:clamp(15px,3.6vw,17px);
+    font-weight:500; color:var(--muted);
+    letter-spacing:.002em;
+  }
+
+  .cta{
+    margin-top:38px;
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    padding:14px 30px;
+    background:var(--emerald); color:#fff;
+    font-family:inherit; font-size:15.5px; font-weight:600; letter-spacing:.005em;
+    border:none; border-radius:14px; cursor:pointer; text-decoration:none; white-space:nowrap;
+    box-shadow:0 1px 2px rgba(20,24,28,.06), 0 10px 26px rgba(10,157,102,.18);
+    transition:background .18s ease, box-shadow .22s ease, transform .18s ease;
+  }
+  .cta:hover{
+    background:var(--emerald-hover);
+    box-shadow:0 1px 2px rgba(20,24,28,.06), 0 14px 32px rgba(10,157,102,.26);
+    transform:translateY(-1px);
+  }
+  .cta:active{ transform:translateY(0); }
+  .cta:focus-visible{ outline:3px solid rgba(10,157,102,.32); outline-offset:3px; }
+  .cta svg{ width:17px; height:17px; }
+
+  .footnote{
+    margin-top:22px;
+    font-size:13px; font-weight:500; color:var(--faint);
+    letter-spacing:.004em;
+  }
+
+  /* =========================================================
+     ENTRANCE — plays once on load. Base styles above are the
+     resting (visible) state; keyframes animate FROM hidden.
+     Gated on .cm-anim so the preview can replay.
+     ========================================================= */
+  .cm-anim .ring{ animation:cm-ring 1.05s cubic-bezier(.65,0,.35,1) both; }
+  .cm-anim .dollar{ animation:cm-pop .55s cubic-bezier(.2,.7,.2,1) .42s both; transform-origin:40px 40px; }
+  .cm-anim .wordmark{ animation:cm-wipe .8s cubic-bezier(.22,1,.36,1) .6s both; }
+  .cm-anim .tagline{ animation:cm-up .7s cubic-bezier(.22,1,.36,1) 1.05s both; }
+  .cm-anim .cta{ animation:cm-up .7s cubic-bezier(.22,1,.36,1) 1.22s both; }
+  .cm-anim .footnote{ animation:cm-up .7s cubic-bezier(.22,1,.36,1) 1.38s both; }
+
+  @keyframes cm-ring{
+    from{ stroke-dasharray:0 207; opacity:0; }
+    35%{ opacity:1; }
+    to{ stroke-dasharray:158 49; opacity:1; }
+  }
+  @keyframes cm-pop{
+    from{ opacity:0; transform:scale(.82); }
+    to{ opacity:1; transform:scale(1); }
+  }
+  @keyframes cm-wipe{
+    from{ opacity:0; clip-path:inset(0 100% 0 0); transform:translateX(-4px); filter:blur(2px); }
+    to{ opacity:1; clip-path:inset(0 0 0 0); transform:translateX(0); filter:blur(0); }
+  }
+  @keyframes cm-up{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @keyframes cm-glow{
+    from{ opacity:0; } to{ opacity:1; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .cm-anim .ring,.cm-anim .dollar,.cm-anim .wordmark,
+    .cm-anim .tagline,.cm-anim .cta,.cm-anim .footnote{ animation:none; }
+    .glow{ animation:none; opacity:1; }
+  }
+
+  /* Preview-only replay control (NOT in the React deliverable) */
+  .replay{
+    position:fixed; right:18px; bottom:16px; z-index:10;
+    display:inline-flex; align-items:center; gap:7px;
+    padding:8px 13px; border-radius:999px;
+    background:rgba(255,255,255,.8); backdrop-filter:blur(8px);
+    border:1px solid var(--border); color:var(--muted-2);
+    font-family:inherit; font-size:12px; font-weight:600; cursor:pointer;
+    transition:color .15s, border-color .15s;
+  }
+  .replay:hover{ color:var(--ink); border-color:#D7D3C9; }
+  .replay svg{ width:13px; height:13px; }
+</style>
+</head>
+<body>
+  <main class="stage" data-screen-label="welcome">
+    <div class="grain"></div>
+    <div class="glow"></div>
+
+    <div class="content cm-anim" id="stage">
+      <div class="lockup" role="img" aria-label="CashMind">
+        <svg class="symbol" viewBox="0 0 80 80" aria-hidden="true">
+          <circle class="ring" cx="40" cy="40" r="33" transform="rotate(120 40 40)" />
+          <path class="dollar" d="M42.70 63.63L38.70 63.63L38.70 59.08Q34.20 58.48 30.90 55.73Q27.60 52.98 26.30 48.98L26.30 48.98L31.25 46.88Q32.35 49.67 34.28 51.42Q36.20 53.17 38.70 53.77L38.70 53.77L38.70 42.38L36.35 41.63Q32.15 40.33 29.95 37.65Q27.75 34.97 27.75 31.38L27.75 31.38Q27.75 28.42 29.15 26.13Q30.55 23.82 33 22.42Q35.45 21.02 38.70 20.82L38.70 20.82L38.70 16.38L42.70 16.38L42.70 21.02Q46.65 21.73 49.48 24.13Q52.30 26.52 53.50 29.92L53.50 29.92L48.60 32.08Q46.90 27.63 42.70 26.38L42.70 26.38L42.70 37.77L44.75 38.42Q53.70 41.22 53.70 48.58L53.70 48.58Q53.70 51.48 52.30 53.75Q50.90 56.02 48.45 57.42Q46 58.83 42.70 59.13L42.70 59.13L42.70 63.63ZM38.25 36.38L38.25 36.38L38.70 36.52L38.70 26.02Q36.35 26.27 34.98 27.63Q33.60 28.97 33.60 31.07L33.60 31.07Q33.60 32.88 34.75 34.27Q35.90 35.67 38.25 36.38ZM43.35 43.83L43.35 43.83L42.70 43.67L42.70 53.98Q45.05 53.63 46.48 52.30Q47.90 50.98 47.90 48.98L47.90 48.98Q47.90 46.92 46.73 45.73Q45.55 44.52 43.35 43.83Z" />
+        </svg>
+        <div class="wordmark"><span class="cash">Cash</span><span class="mind">Mind</span></div>
+      </div>
+
+      <p class="tagline">Personal finance, precisely.</p>
+
+      <a class="cta" href="/login">
+        Sign in
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+
+      <p class="footnote">Access is restricted to invited accounts.</p>
+    </div>
+  </main>
+
+  <button class="replay" id="replay" title="Replay animation (preview only)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+    Replay
+  </button>
+
+  <script>
+    const stage = document.getElementById('stage');
+    document.getElementById('replay').addEventListener('click', () => {
+      stage.classList.remove('cm-anim');
+      void stage.offsetWidth; // force reflow
+      stage.classList.add('cm-anim');
+    });
+  </script>
+</body>
+</html>
