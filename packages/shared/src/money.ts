@@ -12,7 +12,7 @@ export const MIN_AMOUNT_MINOR = -Number.MAX_SAFE_INTEGER;
 export const AmountMinorSchema = z
   .number()
   .int()
-  .min(MIN_AMOUNT_MINOR, "Amount is too large")
+  .min(MIN_AMOUNT_MINOR, "Amount is too small")
   .max(MAX_AMOUNT_MINOR, "Amount is too large");
 
 /**

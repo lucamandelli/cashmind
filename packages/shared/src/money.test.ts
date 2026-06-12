@@ -200,12 +200,16 @@ describe("AmountMinorSchema", () => {
     expect(AmountMinorSchema.parse(12_000_000_000)).toBe(12_000_000_000);
   });
 
-  it("rejects MAX_AMOUNT_MINOR + 1 (out of range)", () => {
-    expect(() => AmountMinorSchema.parse(MAX_AMOUNT_MINOR + 1)).toThrow();
+  it("rejects MAX_AMOUNT_MINOR + 1 with a too-large message", () => {
+    expect(() => AmountMinorSchema.parse(MAX_AMOUNT_MINOR + 1)).toThrow(
+      "Amount is too large",
+    );
   });
 
-  it("rejects MIN_AMOUNT_MINOR - 1 (out of range)", () => {
-    expect(() => AmountMinorSchema.parse(MIN_AMOUNT_MINOR - 1)).toThrow();
+  it("rejects MIN_AMOUNT_MINOR - 1 with a too-small message (not 'too large')", () => {
+    expect(() => AmountMinorSchema.parse(MIN_AMOUNT_MINOR - 1)).toThrow(
+      "Amount is too small",
+    );
   });
 
   it("rejects a non-integer (1.5 is not an integer amount of cents)", () => {
