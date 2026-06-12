@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { divideMinor, formatBRL, parseReais, toMajor, toMinor } from "./money.js";
+import {
+  AmountMinorSchema,
+  MAX_AMOUNT_MINOR,
+  MIN_AMOUNT_MINOR,
+  divideMinor,
+  formatBRL,
+  parseReais,
+  toMajor,
+  toMinor,
+} from "./money.js";
 
 describe("toMinor", () => {
   it("converts whole BRL to cents", () => {
@@ -167,5 +176,43 @@ describe("parseReais — edit round-trip (toMajor → String → parseReais → 
 
   it("round-trips zero: 0 cents → '0' → 0 cents", () => {
     expect(toMinor(parseReais(String(toMajor(0))))).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// AmountMinorSchema — integer-cents validation with JS-safe-integer ceiling
+// ---------------------------------------------------------------------------
+
+describe("AmountMinorSchema", () => {
+  it("accepts 0", () => {
+    expect(AmountMinorSchema.parse(0)).toBe(0);
+  });
+
+  it("accepts MAX_AMOUNT_MINOR (Number.MAX_SAFE_INTEGER)", () => {
+    expect(AmountMinorSchema.parse(MAX_AMOUNT_MINOR)).toBe(MAX_AMOUNT_MINOR);
+  });
+
+  it("accepts MIN_AMOUNT_MINOR (-Number.MAX_SAFE_INTEGER)", () => {
+    expect(AmountMinorSchema.parse(MIN_AMOUNT_MINOR)).toBe(MIN_AMOUNT_MINOR);
+  });
+
+  it("accepts a large value within bounds (12000000000 — the original crash value)", () => {
+    expect(AmountMinorSchema.parse(12_000_000_000)).toBe(12_000_000_000);
+  });
+
+  it("rejects MAX_AMOUNT_MINOR + 1 with a too-large message", () => {
+    expect(() => AmountMinorSchema.parse(MAX_AMOUNT_MINOR + 1)).toThrow(
+      "Amount is too large",
+    );
+  });
+
+  it("rejects MIN_AMOUNT_MINOR - 1 with a too-small message (not 'too large')", () => {
+    expect(() => AmountMinorSchema.parse(MIN_AMOUNT_MINOR - 1)).toThrow(
+      "Amount is too small",
+    );
+  });
+
+  it("rejects a non-integer (1.5 is not an integer amount of cents)", () => {
+    expect(() => AmountMinorSchema.parse(1.5)).toThrow();
   });
 });

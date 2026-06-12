@@ -21,7 +21,7 @@ type AccountRow = {
   id: string;
   userId: string;
   name: string;
-  initialBalance: number;
+  initialBalance: bigint;
   currency: string;
   archivedAt: Date | null;
   createdAt: Date;
@@ -33,7 +33,9 @@ const serialize = (a: AccountRow) =>
     id: a.id,
     userId: a.userId,
     name: a.name,
-    initialBalance: a.initialBalance,
+    // Convert BIGINT→number at the boundary. Values are bounded ≤ MAX_SAFE_INTEGER
+    // by AmountMinorSchema, so Number() is always precision-exact here.
+    initialBalance: Number(a.initialBalance),
     currency: a.currency,
     archivedAt: a.archivedAt ? a.archivedAt.toISOString() : null,
     createdAt: a.createdAt.toISOString(),
@@ -72,11 +74,19 @@ const accounts: FastifyPluginAsync = async (app) => {
   // POST /accounts — create a new account
   app.post("/accounts", async (request, reply) => {
     const userId = (request as FastifyRequest & { userId: string }).userId;
-    const { name, initialBalance, currency } = CreateAccountSchema.parse(
-      request.body,
-    );
+
+    let name: string, initialBalance: number, currency: string;
+    try {
+      ({ name, initialBalance, currency } = CreateAccountSchema.parse(request.body));
+    } catch (err) {
+      if (err instanceof ZodError) {
+        return reply.status(400).send({ error: err.errors[0]?.message ?? "validation error" });
+      }
+      throw err;
+    }
+
     const created = await db.account.create({
-      data: { userId, name, initialBalance, currency },
+      data: { userId, name, initialBalance: BigInt(initialBalance), currency },
     });
     return reply.status(201).send(serialize(created));
   });
@@ -98,9 +108,16 @@ const accounts: FastifyPluginAsync = async (app) => {
 
     // UpdateAccountSchema already excludes archivedAt. Mutation is scoped
     // atomically by both id AND userId — no separate findFirst needed.
+    // Convert initialBalance to bigint at the Prisma boundary when present.
+    const dbData = {
+      ...data,
+      ...(data.initialBalance !== undefined
+        ? { initialBalance: BigInt(data.initialBalance) }
+        : {}),
+    };
     const { count } = await db.account.updateMany({
       where: { id, userId },
-      data,
+      data: dbData,
     });
     if (count === 0) return reply.status(404).send({ error: "not found" });
 

@@ -1,7 +1,7 @@
 ---
 type: domain
 status: current
-updated: 2026-06-11
+updated: 2026-06-12
 summary: Accounts/wallets and how the balance is computed (on read, with the transfer branch).
 tags: [domain, accounts, balance]
 ---
@@ -28,7 +28,11 @@ only how much came in/out.
              + Σ transfer.amountMinor    where to_account_id   = X
   ```
 
-- All amounts are **integer cents** (`amountMinor`).
+- All amounts are **integer cents** (`amountMinor`). `initialBalance` is stored
+  as a **BIGINT** in PostgreSQL (INT4 caps at R$ 21.4M — far too small for money).
+  At the API boundary the value is converted `bigint ↔ number`; the app-side
+  range is bounded at JS `Number.MAX_SAFE_INTEGER` (~R$ 90 trillion) so the
+  conversion is always precision-exact. See [[0007-money-column-bigint]].
 - Accounts are **archived by default, never deleted** (`archived_at`). Exception:
   an archived account with no transfers to a surviving account may be permanently
   hard-deleted — the deliberate narrow escape hatch decided in

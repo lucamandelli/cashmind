@@ -1,3 +1,20 @@
+import { z } from "zod";
+
+/**
+ * App-side money range. We convert BIGINT→number at the API edge, so the safe
+ * ceiling is JS MAX_SAFE_INTEGER (~R$ 90 trillion), not the full INT8 range.
+ * Bounding here guarantees Number() at the boundary is always precision-exact.
+ */
+export const MAX_AMOUNT_MINOR = Number.MAX_SAFE_INTEGER;
+export const MIN_AMOUNT_MINOR = -Number.MAX_SAFE_INTEGER;
+
+/** Reusable integer-cents schema. Reused by accounts now and Transaction amountMinor later. */
+export const AmountMinorSchema = z
+  .number()
+  .int()
+  .min(MIN_AMOUNT_MINOR, "Amount is too small")
+  .max(MAX_AMOUNT_MINOR, "Amount is too large");
+
 /**
  * Rounding rule: half-up (round half away from zero).
  * Used for splits/percentages. Never use Math.round (banker's rounding) or floats.

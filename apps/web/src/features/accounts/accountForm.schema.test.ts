@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toMinor } from "@cashmind/shared";
+import { toMinor, MAX_AMOUNT_MINOR, toMajor } from "@cashmind/shared";
 import { FormSchema } from "./accountForm.schema";
 
 function parseAmount(raw: string): number {
@@ -44,5 +44,21 @@ describe("FormSchema — money wiring", () => {
   it("name max 100 chars", () => {
     const result = FormSchema.safeParse({ name: "a".repeat(101), amountReais: "10" });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("FormSchema — amount bounds", () => {
+  it("an amount in reais that converts within safe-integer cents passes", () => {
+    // 120000000 reais = 12000000000 cents, well within MAX_SAFE_INTEGER
+    const result = FormSchema.safeParse({ name: "Rich", amountReais: "120000000" });
+    expect(result.success).toBe(true);
+  });
+
+  it("an amount in reais that converts beyond MAX_AMOUNT_MINOR fails with 'Amount is too large'", () => {
+    // toMajor(MAX_AMOUNT_MINOR) + 1 reais → toMinor() > MAX_AMOUNT_MINOR
+    const overMaxReais = String(toMajor(MAX_AMOUNT_MINOR) + 1);
+    const result = FormSchema.safeParse({ name: "Too Big", amountReais: overMaxReais });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe("Amount is too large");
   });
 });

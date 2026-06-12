@@ -1,7 +1,7 @@
 ---
 type: api
 status: current
-updated: 2026-06-11
+updated: 2026-06-12
 summary: Financial accounts resource — user-scoped CRUD with archive/unarchive state transitions and conditional hard-delete.
 tags: [api, accounts]
 ---
@@ -48,6 +48,10 @@ rules and validation live there, not here).
   pass `?includeArchived=true` to include archived rows.
 - `initialBalance` may be negative (credit-card / debt starting balance is
   legitimate — see [[accounts]] for the balance formula).
+- `POST /accounts` and `PATCH /accounts/:id` return `400` when `initialBalance`
+  is out of the `AmountMinorSchema` range (validated via `@cashmind/shared` before
+  the Prisma call). Previously these returned `500` on large values — see
+  [[0007-money-column-bigint]].
 - **`DELETE /accounts/:id` guard ladder** (read-first, so each code is
   distinguishable): row not found or belongs to another user → `404`; account is
   active (`archivedAt IS NULL`) → `409` ("account is not archived"); account is

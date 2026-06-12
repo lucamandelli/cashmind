@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { AmountMinorSchema } from "./money.js";
 
 export const CreateAccountSchema = z.object({
   name: z.string().trim().min(1).max(100),
-  initialBalance: z.number().int().default(0),
+  initialBalance: AmountMinorSchema.default(0),
   currency: z.string().default("BRL"),
 });
 export type CreateAccount = z.infer<typeof CreateAccountSchema>;
@@ -11,7 +12,7 @@ export type CreateAccount = z.infer<typeof CreateAccountSchema>;
 export const UpdateAccountSchema = z
   .object({
     name: z.string().trim().min(1).max(100),
-    initialBalance: z.number().int(),
+    initialBalance: AmountMinorSchema,
     currency: z.string(),
   })
   .partial()
@@ -24,7 +25,7 @@ export const AccountSchema = z.object({
   id: z.string(),
   userId: z.string(),
   name: z.string(),
-  initialBalance: z.number().int(),
+  initialBalance: AmountMinorSchema,
   currency: z.string(),
   /** Null when active; ISO 8601 timestamptz string when archived. Read-only — mutated only via /archive and /unarchive. */
   archivedAt: z.string().datetime().nullable(),
