@@ -1,7 +1,7 @@
 ---
 type: ops
 status: current
-updated: 2026-06-09
+updated: 2026-06-12
 summary: The monorepo was scaffolded — workspaces, tooling, and end-to-end hello path working. Describes WHERE each piece lives.
 tags: [ops, scaffold, monorepo, tooling]
 ---
@@ -52,9 +52,10 @@ To run: `docker compose up -d` → `npm run dev` at the repo root.
 
 ## Scaffold gotchas
 
-- **Prisma + npm workspaces:** the generator `output` points to
-  `../../../node_modules/.prisma/client` (monorepo root) to avoid a hoisting
-  mismatch. See schema at `apps/api/prisma/schema.prisma`.
+- **Prisma + npm workspaces:** the `prisma-client` generator (v7) writes to
+  `apps/api/src/generated/prisma` (gitignored). `tsc -b` bundles it into `dist/`.
+  The CLI connection string lives in `apps/api/prisma.config.ts`, not `schema.prisma`.
+  Decided in [[0008-prisma-v7-migration]].
 - **`@cashmind/shared` in Vite:** alias in `vite.config.ts` points to
   `packages/shared/src/index.ts` (raw TS source) for cross-workspace HMR;
   `tsc -b` uses `dist/` via project references.

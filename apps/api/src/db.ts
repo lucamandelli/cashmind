@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./generated/prisma/client.js";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 // Avoid multiple PrismaClient instances during hot-reload in development
 const globalForPrisma = globalThis as unknown as {
@@ -8,6 +9,7 @@ const globalForPrisma = globalThis as unknown as {
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
+    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
     log:
       process.env.NODE_ENV === "development"
         ? ["query", "error", "warn"]
