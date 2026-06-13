@@ -70,11 +70,13 @@ flow — its rationale and build brief live in the ADR; the `## Frontend design 
 convention section lands with the code. Existing screens are **not** re-skinned here.
 → [[0005-design-token-system]] · Touches: [[conventions]] · status: planned
 
-### 1d · Welcome screen
+### 1d · Welcome screen + Login screen (theme toggle)
 Branded public front door at `/` — animated lockup, tagline, Sign-in CTA. The
 `/login` route gains an auth guard that redirects logged-in users straight to
-`/accounts`. Replaces the walking-skeleton health-check debug page.
-→ [[welcome]] · Touches: [[0005-design-token-system]] · status: current
+`/accounts`. Both auth screens are fully theme-aware (light / dark / system
+toggle, no-flash script, tokens from 1c). Post-login screens are **not** re-skinned
+here — they adopt the same toggle at their own rebrand.
+→ [[welcome]] · [[login]] · Touches: [[0005-design-token-system]] · [[0009-theme-toggle]] · status: current
 
 ### 2 · Categories
 

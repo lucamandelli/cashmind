@@ -1,8 +1,8 @@
 ---
 type: feature
 status: current
-updated: 2026-06-12
-summary: Branded public front door at "/" — animated CashMind lockup, tagline, and a single Sign-in CTA routing to /login.
+updated: 2026-06-13
+summary: Branded public front door at "/" — animated CashMind lockup, tagline, and a single Sign-in CTA routing to /login. Light/dark/system theme toggle present.
 tags: [feature, frontend, welcome, auth]
 ---
 
@@ -38,6 +38,18 @@ The entrance animation uses five `@keyframes` blocks (`cm-ring`, `cm-pop`,
 `apps/web/src/assets/brand/cashmind-symbol.svg` — kept inline so the ring can
 be stroke-animated via CSS.
 
+## Theme
+
+The screen is fully theme-aware (light / dark / system). The `ThemeToggle`
+component is fixed top-right; `useTheme` resolves the pref (defaulting to
+`system`), persists it, and applies `.dark` to `<html>`. A no-flash inline
+script in `index.html` sets the theme before first paint. See [[0009-theme-toggle]].
+
+The grain overlay uses `dark:opacity-[0.03]` (vs. `opacity-[0.018]` in light) to
+match the design reference. All colours (`bg-bg`, `text-text`, `text-text-2`,
+`text-text-3`, `text-primary`, `bg-primary`, `hover:bg-primary-hover`) resolve
+from CSS variables, switching instantly on theme change.
+
 ## Rules
 
 - **`/login` redirects authenticated users to `/accounts`.**
@@ -51,7 +63,6 @@ be stroke-animated via CSS.
 
 ## Uses
 
-Uses the design-token vocabulary from [[0005-design-token-system]] (`bg-primary`,
-`text-text-2`, `text-n400`, `hover:bg-primary-hover`). Background and grain
-technique match [[walking-skeleton]]'s `AuthLayout` — the two unauthenticated
-screens read as siblings.
+Uses the design-token vocabulary from [[0005-design-token-system]]. Shares the
+`AuthLayout` grain/glow/brand technique with [[login]]. Theme toggle and
+persistence: [[0009-theme-toggle]].

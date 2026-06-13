@@ -37,3 +37,6 @@ plans/
 
 # OS
 .DS_Store
+
+# Design folder
+design-system/

@@ -1,7 +1,7 @@
 ---
 type: overview
 status: current
-updated: 2026-06-12
+updated: 2026-06-13
 summary: Sub-hub for Architecture Decision Records (the "why").
 tags: [decisions, adr, moc]
 ---
@@ -22,5 +22,6 @@ over time.
 - [[0006-frontend-feature-folder-architecture]] — thin routes → pages as containers → feature folders for UI/logic/data; all writes via `useMutation`; shared transport in `services/api.ts`
 - [[0007-money-column-bigint]] — store money columns as BIGINT; bound at JS MAX_SAFE_INTEGER so bigint↔number conversion is always precision-exact
 - [[0008-prisma-v7-migration]] — migrate to Prisma 7: prisma-client generator, @prisma/adapter-pg driver adapter, and prisma.config.ts for the CLI connection string
+- [[0009-theme-toggle]] — ship the deferred theme toggle: light/dark/system, `.dark` on `<html>`, no-flash script, scoped to auth screens (accounts inherits at rebrand)
 
 Parent: [[00-overview]]

@@ -77,11 +77,13 @@ using them continue to work.
 figures that align in columns. This is a direct fit for the integer-cents money
 invariant. Never use it for decorative or non-numeric text.
 
-Dark mode resolves when the `.dark` class is on a parent element; both themes
-are wired (use `dark:` utilities freely), but **no toggle UI ships yet** — that
-is a later UI task.
+Dark mode resolves when `.dark` is on `<html>`. The **toggle ships on the auth
+screens** (Welcome + Login) via `useTheme` (`hooks/useTheme.ts`) and
+`ThemeToggle` (`components/ThemeToggle/`). Other screens adopt them at their own
+rebrand. See [[0009-theme-toggle]] for the persistence and no-flash script
+decisions.
 
-See [[0005-design-token-system]] for the decision rationale, and `apps/web/src/index.css`
+See [[0005-design-token-system]] for the token-system rationale, and `apps/web/src/index.css`
 for the actual token definitions. Do not copy token values or tables into docs —
 a copied fact is a future lie.
 
