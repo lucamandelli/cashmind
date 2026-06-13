@@ -17,10 +17,12 @@ function applyTheme(resolved: "light" | "dark") {
   }
 }
 
+const VALID_PREFS = new Set<string>(["light", "dark", "system"]);
+
 export function useTheme() {
   const [pref, setPref] = useState<ThemePref>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) as ThemePref | null;
-    return stored ?? "system";
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return VALID_PREFS.has(stored ?? "") ? (stored as ThemePref) : "system";
   });
 
   useEffect(() => {
