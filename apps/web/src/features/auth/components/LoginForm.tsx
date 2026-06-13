@@ -76,7 +76,7 @@ export function LoginForm() {
             onClick={() => setShowPassword((v) => !v)}
             aria-label={showPassword ? "Hide password" : "Show password"}
             aria-pressed={showPassword}
-            className="absolute right-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-[9px] text-text-3 transition-colors duration-150 hover:bg-surface-3 hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus)]"
+            className="absolute right-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-[9px] text-text-3 transition-colors duration-150 hover:bg-surface-3 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-(--focus)"
           >
             {showPassword ? (
               <EyeOff size={19} strokeWidth={2} aria-hidden="true" />
@@ -98,7 +98,7 @@ export function LoginForm() {
       {/* Submit */}
       <button
         type="submit"
-        className="mt-2 inline-flex w-full items-center justify-center rounded-[14px] bg-primary px-6 py-[15px] text-[15.5px] font-semibold tracking-[0.005em] text-text-on-primary shadow-[var(--shadow)] transition-[background-color,box-shadow,transform] duration-[180ms] ease-in-out hover:-translate-y-px hover:bg-primary-hover active:translate-y-0 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[var(--focus)]"
+        className="mt-2 inline-flex w-full items-center justify-center rounded-[14px] bg-primary px-6 py-[15px] text-[15.5px] font-semibold tracking-[0.005em] text-text-on-primary shadow-(--shadow) transition-[background-color,box-shadow,transform] duration-180 ease-in-out hover:-translate-y-px hover:bg-primary-hover active:translate-y-0 focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-(--focus)"
         disabled={isSubmitting}
       >
         {isSubmitting ? (

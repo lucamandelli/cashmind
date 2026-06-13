@@ -69,7 +69,7 @@ export function ThemeToggle({ value, onChange }: ThemeToggleProps) {
   return (
     <div
       aria-label="Color theme"
-      className="fixed right-[18px] top-[18px] z-30 inline-flex items-center gap-[2px] rounded-full border border-border bg-surface p-1 shadow-[var(--shadow)] transition-colors duration-300"
+      className="fixed right-[18px] top-[18px] z-30 inline-flex items-center gap-[2px] rounded-full border border-border bg-surface p-1 shadow-(--shadow) transition-colors duration-300"
     >
       {OPTIONS.map((o) => {
         const active = value === o.key;
@@ -82,7 +82,7 @@ export function ThemeToggle({ value, onChange }: ThemeToggleProps) {
             title={o.label.replace(" theme", "")}
             onClick={() => onChange(o.key)}
             className={cn(
-              "inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]",
+              "inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--focus)",
               active ? "bg-primary-subtle text-primary" : "text-text-3 hover:text-text",
             )}
           >

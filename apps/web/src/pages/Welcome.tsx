@@ -79,7 +79,7 @@ export function Welcome() {
 
         <Link
           to="/login"
-          className="cm-cta mt-9.5 inline-flex items-center justify-center gap-2.25 rounded-[14px] bg-primary px-7.5 py-3.5 text-[15.5px] font-semibold tracking-[0.005em] text-text-on-primary no-underline shadow-[var(--shadow)] transition-[background-color,box-shadow,transform] duration-180 ease-in-out hover:-translate-y-px hover:bg-primary-hover active:translate-y-0 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[var(--focus)]"
+          className="cm-cta mt-9.5 inline-flex items-center justify-center gap-2.25 rounded-[14px] bg-primary px-7.5 py-3.5 text-[15.5px] font-semibold tracking-[0.005em] text-text-on-primary no-underline shadow-(--shadow) transition-[background-color,box-shadow,transform] duration-180 ease-in-out hover:-translate-y-px hover:bg-primary-hover active:translate-y-0 focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-(--focus)"
         >
           Sign in
           <svg
