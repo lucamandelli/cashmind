@@ -40,3 +40,6 @@ plans/
 
 # Design folder
 design-system/
+
+# VSCode folder
+.vscode/
