@@ -22,7 +22,7 @@ export function Welcome() {
 
       {/* Emerald glow — fades in with cm-glow keyframe */}
       <div
-        className="cm-glow pointer-events-none absolute left-1/2 top-[42%] h-[680px] w-[680px] -translate-x-1/2 -translate-y-1/2"
+        className="cm-glow pointer-events-none absolute left-1/2 top-[42%] h-170 w-170 -translate-x-1/2 -translate-y-1/2"
         style={{
           background: "radial-gradient(circle, rgba(22,201,138,.06) 0%, rgba(22,201,138,0) 60%)",
         }}
@@ -32,7 +32,7 @@ export function Welcome() {
       <div className="cm-welcome relative z-10 flex flex-col items-center text-center">
         {/* Lockup — inline SVG so the ring can be stroke-animated.
             Geometry is identical to assets/brand/cashmind-symbol.svg. */}
-        <div className="flex items-center gap-[18px]" role="img" aria-label="CashMind">
+        <div className="flex items-center gap-4.5" role="img" aria-label="CashMind">
           <svg
             className="cm-symbol block shrink-0"
             style={{
@@ -71,7 +71,7 @@ export function Welcome() {
         </div>
 
         <p
-          className="cm-tagline mt-[26px] font-medium text-text-2 [transition:color_.35s_ease]"
+          className="cm-tagline mt-6.5 font-medium text-text-2 [transition:color_.35s_ease]"
           style={{ fontSize: "clamp(15px, 3.6vw, 17px)" }}
         >
           Personal finance, precisely.
@@ -79,11 +79,11 @@ export function Welcome() {
 
         <Link
           to="/login"
-          className="cm-cta mt-[38px] inline-flex items-center justify-center gap-[9px] rounded-[14px] bg-primary px-[30px] py-[14px] text-[15.5px] font-semibold tracking-[0.005em] text-text-on-primary no-underline shadow-[var(--shadow)] transition-[background-color,box-shadow,transform] duration-[180ms] ease-in-out hover:-translate-y-px hover:bg-primary-hover active:translate-y-0 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[var(--focus)]"
+          className="cm-cta mt-9.5 inline-flex items-center justify-center gap-2.25 rounded-[14px] bg-primary px-7.5 py-3.5 text-[15.5px] font-semibold tracking-[0.005em] text-text-on-primary no-underline shadow-[var(--shadow)] transition-[background-color,box-shadow,transform] duration-180 ease-in-out hover:-translate-y-px hover:bg-primary-hover active:translate-y-0 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[var(--focus)]"
         >
           Sign in
           <svg
-            className="h-[17px] w-[17px]"
+            className="h-4.25 w-4.25"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -96,7 +96,7 @@ export function Welcome() {
           </svg>
         </Link>
 
-        <p className="cm-footnote mt-[22px] text-[13px] font-medium tracking-[0.004em] text-text-3 [transition:color_.35s_ease]">
+        <p className="cm-footnote mt-5.5 text-[13px] font-medium tracking-[0.004em] text-text-3 [transition:color_.35s_ease]">
           Access is restricted to invited accounts.
         </p>
       </div>
